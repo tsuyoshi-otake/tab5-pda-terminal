@@ -1,5 +1,13 @@
 # 変更履歴
 
+## 2026-11-12（その 2）化粧パネルのねじを四隅の 4 本だけにした
+
+ねじが多すぎる、柱は多くてよいがパネルのねじは四隅だけでよい、という指摘を受けた。
+
+- 化粧パネルのねじは四隅の 4 本（`PANEL_SCREWS`）。Tab5 の脇の 4 本は、ねじ穴のない柱（`PANEL_PILLARS`）として残し、パネルの裏を受ける
+- ねじは全部で M2×8 12 本（ヒンジ 8、化粧パネル 4）
+- 変わったファイル：plate 1（蓋 B）、plate 3（化粧パネル B）、`large/` の蓋と化粧パネル、Bambu の plate 1・3
+
 ## 2026-11-12 最初の版：PaperDIY PDA Terminal の筐体を M5Stack Tab5 用に作り直した
 
 [PaperDIY PDA Terminal](https://github.com/tsuyoshi-otake/paperdiy-pda-terminal)（2026-11-12 の時点、ストッパーなしの留めツメとヒンジ側の逃がしが入った版）の筐体のスクリプトを土台にした。

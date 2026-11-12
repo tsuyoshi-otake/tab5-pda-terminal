@@ -91,6 +91,10 @@ def inner_view(ax, lid, panel, kit):
     ax.text(wx, wy, "画面（5 型、タッチ）", fontsize=12, color="#777", ha="center", va="center", zorder=4)
     for x, y in B.PANEL_SCREWS:
         ax.add_patch(Circle((x, -y), 1.6, fc="white", ec=INK, lw=0.8, zorder=5))
+    for x, y in B.PANEL_PILLARS:                              # behind the panel: where it rests
+        ax.add_patch(Circle((x, -y), B.PANEL_BOSS_R, fc="none", ec="#8a8478", lw=0.9, ls=(0, (2, 2)), zorder=5))
+    px, py = B.PANEL_PILLARS[2]
+    note(ax, (px + 2.0, -py - 2.5), "点線：ねじのない柱（裏でパネルを受ける）", (20.0, -61.0), fs=9.5)
     note(ax, (B.PANEL_SCREWS[1][0] - 1.5, -B.PANEL_SCREWS[1][1] + 1.0), f"M2×8 皿タッピングねじ（{len(B.PANEL_SCREWS)} 本）", (60.0, 57.0))
     cx, cy, _ = B.KIT_CAMERA
     note(ax, (B.KIT_CX + cx, -cy + 3.0), "カメラの穴", (70.0, 20.0), fs=9.5)

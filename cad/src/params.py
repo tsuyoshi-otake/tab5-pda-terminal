@@ -167,8 +167,10 @@ PANEL_SLOT = dict(out=11.0, end=3.0, r=0.75)  # finger slot through the panel be
 # guard rings on the panel's back around the finger slots, up to the kit's back: whatever falls in a slot stays in that
 # pocket (ring + the kit's edge) instead of getting into the lid
 PANEL_GUARD = None
-PANEL_SCREWS = ((-91.0, -37.5), (91.0, -37.5), (-91.0, 46.0), (91.0, 46.0),      # corners, clear of the housings
-                (-66.5, -12.5), (-66.5, 12.5), (74.5, -39.5), (74.5, 40.0))     # beside the Tab5: either side of the USB-C path; right
+PANEL_SCREWS = ((-91.0, -37.5), (91.0, -37.5), (-91.0, 46.0), (91.0, 46.0))      # the four corners, clear of the housings
+# Pillars: the same columns from the ceiling without a screw. The panel's back rests on them beside the Tab5 (either
+# side of the USB-C path on the left, front and back on the right), so it cannot be pushed in there.
+PANEL_PILLARS = ((-66.5, -12.5), (-66.5, 12.5), (74.5, -39.5), (74.5, 40.0))
 # Ribs on the panel's screw bosses (Ø6 columns hanging 6.4-8.6 mm from the lid's ceiling): toward a wall closer than
 # `tie` a rib runs into the wall (full height), elsewhere a gusset `len` long (its edge slopes from the boss's foot to
 # the ceiling); none into the kit's rim or the lid's splice-plate pockets. All stop `gap` above the panel's back.

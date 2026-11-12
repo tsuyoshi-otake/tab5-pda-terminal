@@ -1157,7 +1157,7 @@ def panel_boss_ribs(L):
     rb, h, z0 = PANEL_BOSS_R, g["t"] / 2, PANEL_Z1 + g["gap"]
     keep = panel_boss_keepout()
     out = []
-    for x, y in PANEL_SCREWS:
+    for x, y in PANEL_SCREWS + PANEL_PILLARS:
         zm = (z0 + top_z(y) - SHELL_CEIL) / 2
         for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
             # gap to the nearest material along the ray, at mid-height
@@ -1209,7 +1209,7 @@ def build_kit_lid_shell(usb="direct", blocks=True):
                      ^ half_space(bottom[0] + 0.01, bottom[1], False))
     L = outer - (prism_z(shell_inner(), -10.0, 60.0) ^ half_space(top[0] - SHELL_CEIL, top[1], False))
     adds = hinge_mounts(True)                                                                        # hinges
-    adds += [cyl_z(PANEL_BOSS_R, PANEL_Z1, 60.0, x, y) for x, y in PANEL_SCREWS]                     # panel bosses
+    adds += [cyl_z(PANEL_BOSS_R, PANEL_Z1, 60.0, x, y) for x, y in PANEL_SCREWS + PANEL_PILLARS]     # panel bosses, pillars
     adds += [box(x - 0.8, x + 0.8, -30.0, 30.0, KIT_Z0 + KIT_T + 0.1, 60.0) for x in KIT_RIBS_X]      # on the kit's back
     gx0 = USB_GUIDE_X[0] if usb == "direct" else SPLIT_X_LID       # guides stay in lid B for a panel-mount lid A
     w = USB_CH["w"] / 2 + 0.6
@@ -1653,13 +1653,14 @@ def main_kit():
             f"{STRAP_SCREW_LEN - (seat - KIT_Z1) - KIT_GAP:.1f} mm into the kit (M5Stack: under 3 mm)")
     else:
         log(f"  the panel holds the kit: rim {PANEL_RIM['h']} mm around it ({KIT_FIT} clear), ribs 0.1 mm above its back; "
-            f"{len(PANEL_SCREWS)} x M2x8 countersunk through the {PANEL_T} mm panel, {TAP_SCREW_LEN - PANEL_T:.1f} mm into the bosses")
+            f"{len(PANEL_SCREWS)} x M2x8 countersunk through the {PANEL_T} mm panel, {TAP_SCREW_LEN - PANEL_T:.1f} mm into the bosses; "
+            f"{len(PANEL_PILLARS)} more columns without a screw carry the panel's back beside the kit")
         if PANEL_RIB_INFO:
-            hs = [top_z(y) - SHELL_CEIL - PANEL_Z1 for _, y in PANEL_SCREWS]
+            hs = [top_z(y) - SHELL_CEIL - PANEL_Z1 for _, y in PANEL_SCREWS + PANEL_PILLARS]
             log(f"  panel bosses Ø{2 * PANEL_BOSS_R:g} (pilot {SCREW_PILOT_D}), {min(hs):.1f}..{max(hs):.1f} mm from the ceiling "
                 f"down to the panel; ribs {PANEL_BOSS_RIBS['t']:g} thick, {PANEL_BOSS_RIBS['gap']:g} above the panel's back:")
             names = {(1, 0): "+x", (-1, 0): "-x", (0, 1): "+y", (0, -1): "-y"}
-            for x, y in PANEL_SCREWS:
+            for x, y in PANEL_SCREWS + PANEL_PILLARS:
                 rs = [f"{names[d]} {k} {r:.1f}" for bx, by, d, k, r in PANEL_RIB_INFO if (bx, by) == (x, y)]
                 log(f"    ({x:g}, {y:g}): " + ", ".join(rs))
     skin = min(top_z(y) - KIT_Z1 for y in (KIT_Y0, KIT_Y1))

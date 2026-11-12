@@ -36,7 +36,7 @@ designs (bare PaperDIY, magnets, push-rods, panel-mount USB-C lids) are still in
 | lid | top slopes, 23.8 / 26.4 mm closed | flat top, 29.8 mm closed (`kit_lid_top`: flat when the device needs more than the hinge) |
 | window | 105 × 59.7 | 110.7 × 62.3 (+0.3 a side), centred in the lid; 0.6 mm off the Tab5's middle across |
 | USB-C | left end, y −24, at the kit's front face | left end, y 0, 4.4…12.0 mm behind the screen face (`USB_CH`) |
-| panel | KEY slot + guard, power slot, 6 screws | camera hole, 2 microphone holes, one slot beside the power button, 8 screws |
+| panel | KEY slot + guard, power slot, 6 screws | camera hole, 2 microphone holes, one slot beside the power button, 4 screws (corners) + 4 pillars without a screw beside the Tab5 (`PANEL_PILLARS`) |
 | snap's flex zone | to 2 mm below the ceiling | to 8 mm below the ceiling (the same 11.9 mm of height in a taller wall): 19.1 N/mm, strain 0.33 % at 0.40 mm |
 | panel split (A1 mini) | x −74.2 | x −75.0 (clear of the power slot), panel B 173.8 mm |
 | tray, hinges, covers, snap lip and groove, relief at the hinge side | | unchanged (the tray is the same part) |
@@ -77,7 +77,7 @@ cover (`KIT_RIBS_X`, left of the battery bay), 0.2 mm behind it. Nothing uses it
   (97 g up to 120°). Not weighed.
 - **Snap.** Simulated (`out/snap_sim.md`): 10 N to close and 13 N of hold with the lid where it was drawn, 6 N of hold
   with the lid 0.2 mm forward, none at 0.4 mm.
-- **Print.** Plates 1–3: 160 g, 4 h 14 min (A1 mini, 0.4 nozzle, 0.2 layers, no supports); one-piece parts for a 220 mm
+- **Print.** Plates 1–3: 160 g, 4 h 15 min (A1 mini, 0.4 nozzle, 0.2 layers, no supports); one-piece parts for a 220 mm
   bed: 159 g, 4 h 03 min.
 
 ### Not reachable in the lid
