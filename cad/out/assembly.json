@@ -1,0 +1,79 @@
+{
+ "Y_BACK": 53.0,
+ "Z_PART": 12.85,
+ "HINGE_AXIS_Y": 53.150000000000006,
+ "HINGE_X": 52.0,
+ "HINGE_LEN": 20.0,
+ "HINGE_WIDTH": 25.0,
+ "HINGE_LEAF_T": 2.0,
+ "HINGE_BARREL_D": 5.5,
+ "HINGE_CLR": 0.25,
+ "HINGE_COVER": true,
+ "COVER_T": 1.0,
+ "COVER_RIM": 1.5,
+ "COVER_R0": 3.6,
+ "COVER_SCREWED": true,
+ "COVER_FLUSH": true,
+ "COVER_Y_OUT": 53.0,
+ "HINGE_SINK": 1.0,
+ "TRAY_FLOOR": 2.0,
+ "KB_SIZE": [
+  194.0,
+  85.0
+ ],
+ "HINGE_HOLE_OFF": 8.0,
+ "HINGE_HOLE_PITCH_X": 10.0,
+ "HINGE_MOUNT": "face",
+ "LABEL_POCKET": [
+  21.7,
+  78.0,
+  21.34,
+  32.5
+ ],
+ "USB_PM_Y": 1.0,
+ "USB_PM_Z": 22.5,
+ "BATT": {
+  "cx": 76.9,
+  "cy": -4.5,
+  "z0": 17.25,
+  "L": 50.0,
+  "W": 34.0,
+  "T": 10.0
+ },
+ "STRAP": {
+  "x": -22.6,
+  "w": 8.0,
+  "y": 36.0,
+  "top": 25.9
+ },
+ "PD_MOUNT": "kit",
+ "LID_TOP": [
+  29.8,
+  0.0
+ ],
+ "LID_UNDER": [
+  10.4417,
+  0.05376
+ ],
+ "PANEL": true,
+ "COVER_LID_Z1": 26.400000000000002,
+ "KIT": {
+  "cx": 2.8,
+  "z0": 15.6,
+  "L": 128.0,
+  "W": 80.0,
+  "T": 12.0,
+  "R": 4.0,
+  "win": [
+   110.7,
+   62.3
+  ],
+  "win_off": -2.8,
+  "win_off_y": -0.6,
+  "usb_y": 0.0,
+  "usb_z": [
+   6.6,
+   9.8
+  ]
+ }
+}

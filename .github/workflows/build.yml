@@ -1,0 +1,42 @@
+# Rebuilds the CAD outputs from source and checks that they match what is committed.
+name: build
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  cad:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install -r cad/requirements.txt
+      - name: rebuild STLs and 3MF plates, compare with cad/out/MANIFEST.json
+        run: make verify
+      - name: snap simulation (the built lid closing on the built tray)
+        run: cd cad && python3 tools/snap_sim.py
+      # The report needs PrusaSlicer from the Ubuntu archive. When the archive cannot be reached (it happens: the runner
+      # then hangs for half an hour and more), the report is skipped with a warning; the checks above still count.
+      - name: install PrusaSlicer
+        id: slicer
+        continue-on-error: true
+        timeout-minutes: 10
+        run: |
+          sudo apt-get -o Acquire::Retries=2 update -q
+          sudo apt-get -o Acquire::Retries=2 install -y -q --no-install-recommends prusa-slicer
+      - name: printability report (PrusaSlicer)
+        if: steps.slicer.outcome == 'success'
+        timeout-minutes: 20
+        run: make report
+      - name: report skipped
+        if: steps.slicer.outcome != 'success'
+        run: echo "::warning::PrusaSlicer could not be installed (Ubuntu archive unreachable), so the printability report was skipped in this run"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cad-outputs
+          path: |
+            cad/out
+            cad/3mf

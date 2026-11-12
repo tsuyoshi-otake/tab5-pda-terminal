@@ -1,0 +1,553 @@
+{
+ "3mf/bambu_a1mini/bambu_plate0_test_coupons.3mf": {
+  "objects": 6,
+  "sha256": "9b1acb8edda2bb96e03aa7b66e522c06792a7d6deb8baeae61806e7fded44842",
+  "volumes": [
+   207.22,
+   223.61,
+   1733.67,
+   2483.13,
+   2483.58,
+   3219.36
+  ]
+ },
+ "3mf/bambu_a1mini/bambu_plate1_lid.3mf": {
+  "objects": 6,
+  "sha256": "b5bec10891e571610851afe73bcfbd72bbda435bb47d9e2ec171b6f9806487a5",
+  "volumes": [
+   223.61,
+   223.61,
+   432.0,
+   536.0,
+   11844.94,
+   52674.32
+  ]
+ },
+ "3mf/bambu_a1mini/bambu_plate2_tray.3mf": {
+  "objects": 5,
+  "sha256": "27f9ae23ad10797699ef38aaab9aa5c83469dc47f85b3bb3f542fcf2e2669f1a",
+  "volumes": [
+   207.22,
+   207.22,
+   1696.0,
+   9856.18,
+   51979.09
+  ]
+ },
+ "3mf/bambu_a1mini/bambu_plate3_panel.3mf": {
+  "objects": 5,
+  "sha256": "48f1d0e12ff9505bfeccd2c8be7e577df215432d9f7f42fb79b13bede89633ce",
+  "volumes": [
+   56.26,
+   113.68,
+   468.06,
+   2674.49,
+   14992.11
+  ]
+ },
+ "3mf/bambu_a1mini/tab5_process_a1mini_04.json": {
+  "sha256": "1992ea63910210ad604d00f7ad7c18e4e59ae2975dc8e6cf7401d1400eec21ac"
+ },
+ "3mf/large/plate1_lid.3mf": {
+  "objects": 3,
+  "sha256": "963b1366496e6046442163f5e703fee97b35ea4830bb1aa7dbb14f0de5d23988",
+  "volumes": [
+   223.61,
+   223.61,
+   65544.34
+  ]
+ },
+ "3mf/large/plate2_tray.3mf": {
+  "objects": 3,
+  "sha256": "a53c427db36deeb27bae227cc67b763d688f695da2bc9fc9477142d28c0345a1",
+  "volumes": [
+   207.22,
+   207.22,
+   63594.52
+  ]
+ },
+ "3mf/large/plate3_panel.3mf": {
+  "objects": 1,
+  "sha256": "c9d9ef324900bc5a7105019f31f8c681ced48ee0f7a00903e31c05e22742c0cc",
+  "volumes": [
+   18352.74
+  ]
+ },
+ "3mf/plate0_test_coupons.3mf": {
+  "objects": 6,
+  "sha256": "b02b2102544f4b297882394801ef7c09ee864f4ed1a468e6295021265c57ec95",
+  "volumes": [
+   207.22,
+   223.61,
+   1733.67,
+   2483.13,
+   2483.58,
+   3219.36
+  ]
+ },
+ "3mf/plate1_lid.3mf": {
+  "objects": 6,
+  "sha256": "752b1b1120c8da4207a6ca97950b706efbddec0f64f7e219d220a5f7c2c7ec0d",
+  "volumes": [
+   223.61,
+   223.61,
+   432.0,
+   536.0,
+   11844.94,
+   52674.32
+  ]
+ },
+ "3mf/plate2_tray.3mf": {
+  "objects": 5,
+  "sha256": "3e003c00b03b022a963c65202320b7dc54e9c2d938ae3291460ae8a8660849c4",
+  "volumes": [
+   207.22,
+   207.22,
+   1696.0,
+   9856.18,
+   51979.09
+  ]
+ },
+ "3mf/plate3_panel.3mf": {
+  "objects": 5,
+  "sha256": "33f7dda81fc307ddbd5724aead66e4f8626d76c1590110d7a4da3b58086c09c5",
+  "volumes": [
+   56.26,
+   113.68,
+   468.06,
+   2674.49,
+   14992.11
+  ]
+ },
+ "out/assembly.json": {
+  "sha256": "ae9e33a4a11587b3de3581f5cee5589b6de3df9359623c13e894f04499e9bae8"
+ },
+ "out/coupons/coupon_hinge_lid.stl": {
+  "bbox": [
+   [
+    37.0,
+    36.0,
+    13.228
+   ],
+   [
+    67.0,
+    53.0,
+    29.8
+   ]
+  ],
+  "faces": 1280,
+  "sha256": "e97d3b1f8244894680decd660cb8e0afa68b260d084e10a6637f38c1a498d0b1",
+  "volume": 2483.58
+ },
+ "out/coupons/coupon_hinge_tray.stl": {
+  "bbox": [
+   [
+    37.0,
+    36.0,
+    0.0
+   ],
+   [
+    67.0,
+    53.0,
+    12.85
+   ]
+  ],
+  "faces": 928,
+  "sha256": "3ea617732e01d622726acd9243ef4fdb188a1c7c607dae3260cd07656d1d4d9e",
+  "volume": 3219.36
+ },
+ "out/coupons/coupon_latch_lid.stl": {
+  "bbox": [
+   [
+    -22.4,
+    -46.5,
+    5.342
+   ],
+   [
+    22.4,
+    -34.5,
+    29.8
+   ]
+  ],
+  "faces": 94,
+  "sha256": "5e59f9d29522c184f2fcf0341dfe5bcecd1b00b9537a410bceac80c1fc10f6c4",
+  "volume": 2483.13
+ },
+ "out/coupons/coupon_latch_tray.stl": {
+  "bbox": [
+   [
+    -22.4,
+    -46.5,
+    0.0
+   ],
+   [
+    22.4,
+    -34.5,
+    8.103
+   ]
+  ],
+  "faces": 92,
+  "sha256": "ce6bb85c8ca7ff6d879aa005ece29cd6575ed00f6774d9de7d2c5ca54c00792a",
+  "volume": 1733.67
+ },
+ "out/coupons/orientation.json": {
+  "sha256": "5a0a9c21df27fa71357d8a635138cb7796948338b9bda3a2ed98be915d6d8e5a"
+ },
+ "out/display_lid_usbc.stl": {
+  "bbox": [
+   [
+    -101.0,
+    -46.5,
+    5.342
+   ],
+   [
+    101.0,
+    53.0,
+    29.8
+   ]
+  ],
+  "faces": 6642,
+  "sha256": "0e4475896e9a58e18ac23c47d008a65dc496db75a192d1e9288998a3d0e7b1a5",
+  "volume": 65544.32
+ },
+ "out/display_panel_kit.stl": {
+  "bbox": [
+   [
+    -98.8,
+    -44.75,
+    14.0
+   ],
+   [
+    98.8,
+    51.25,
+    17.6
+   ]
+  ],
+  "faces": 4306,
+  "sha256": "3b1f9f4d30a6570815b1d5ca1d00fa70e4cb0879b447cde122d77f01cbd8dd29",
+  "volume": 18352.75
+ },
+ "out/hinge_cover_lid_x2.stl": {
+  "bbox": [
+   [
+    -64.1,
+    51.3,
+    16.45
+   ],
+   [
+    -39.9,
+    53.0,
+    26.4
+   ]
+  ],
+  "faces": 1688,
+  "sha256": "d8530d41f9e557e29d82f8b4ed22045205d562ec8564efd761c12a1529111867",
+  "volume": 223.61
+ },
+ "out/hinge_cover_tray_x2.stl": {
+  "bbox": [
+   [
+    -64.1,
+    51.3,
+    0.0
+   ],
+   [
+    -39.9,
+    53.0,
+    9.25
+   ]
+  ],
+  "faces": 1700,
+  "sha256": "ac3a45287396c95a4c7472585c24f986ee07728faba29e23ed16785841825e03",
+  "volume": 207.22
+ },
+ "out/keyboard_tray.stl": {
+  "bbox": [
+   [
+    -101.0,
+    -46.5,
+    0.0
+   ],
+   [
+    101.0,
+    53.0,
+    12.85
+   ]
+  ],
+  "faces": 2482,
+  "sha256": "2ef4b512659fbe6de749b167a3d345ab67e435b3e6aa57c5defca4b74d1921f6",
+  "volume": 63594.52
+ },
+ "out/split/lid_A_left.stl": {
+  "bbox": [
+   [
+    -101.0,
+    -46.5,
+    7.942
+   ],
+   [
+    -72.0,
+    53.0,
+    29.8
+   ]
+  ],
+  "faces": 1292,
+  "sha256": "45b4a796e21eb7fdc239941bb283f090b3c362e8857be2f25be1c88534c3484c",
+  "volume": 11844.94
+ },
+ "out/split/lid_B_main.stl": {
+  "bbox": [
+   [
+    -72.0,
+    -46.5,
+    5.342
+   ],
+   [
+    101.0,
+    53.0,
+    29.8
+   ]
+  ],
+  "faces": 5544,
+  "sha256": "5bfd65557d23699a84fe649b4a94fd847f1b749b06579cfc617bb2264d785146",
+  "volume": 52674.31
+ },
+ "out/split/panel_A_left.stl": {
+  "bbox": [
+   [
+    -98.8,
+    -44.3,
+    14.0
+   ],
+   [
+    -75.0,
+    50.8,
+    15.6
+   ]
+  ],
+  "faces": 858,
+  "sha256": "6a25365b94f0f59527549dbe7ed8e7e07008ac95dcf33c111860b862d658215f",
+  "volume": 2674.49
+ },
+ "out/split/panel_B_main.stl": {
+  "bbox": [
+   [
+    -75.0,
+    -44.75,
+    14.0
+   ],
+   [
+    98.8,
+    51.25,
+    17.6
+   ]
+  ],
+  "faces": 3574,
+  "sha256": "b8c79da86de4c5c6309c1b676979e2786a336ed162146b089c4cce15f92df709",
+  "volume": 14992.12
+ },
+ "out/split/splice/lid_splice_1.stl": {
+  "bbox": [
+   [
+    -82.0,
+    -44.0,
+    27.8
+   ],
+   [
+    -66.0,
+    -17.0,
+    28.8
+   ]
+  ],
+  "faces": 12,
+  "sha256": "67517eb70f7283239e95f4a74ada20027189097d07659f384be8a5e5bc301d05",
+  "volume": 432.0
+ },
+ "out/split/splice/lid_splice_2.stl": {
+  "bbox": [
+   [
+    -82.0,
+    17.0,
+    27.8
+   ],
+   [
+    -66.0,
+    50.5,
+    28.8
+   ]
+  ],
+  "faces": 12,
+  "sha256": "0af3dabe7de5e23310a707cdcd66221e9c0e3c094f1fd180e142df8b25137451",
+  "volume": 536.0
+ },
+ "out/split/splice/panel_splice_1.stl": {
+  "bbox": [
+   [
+    -85.0,
+    -42.35,
+    14.8
+   ],
+   [
+    -70.5,
+    -37.5,
+    15.6
+   ]
+  ],
+  "faces": 12,
+  "sha256": "9802d6551d48cec45d4188c58688d554a963d03ec848dab0e2140d8f5d560442",
+  "volume": 56.26
+ },
+ "out/split/splice/panel_splice_2.stl": {
+  "bbox": [
+   [
+    -85.0,
+    -18.3,
+    14.8
+   ],
+   [
+    -70.5,
+    -8.5,
+    15.6
+   ]
+  ],
+  "faces": 12,
+  "sha256": "828180dc619cc0de4b6da2644ccddd0960ca4564cd7e573217471950b1b0cfb7",
+  "volume": 113.68
+ },
+ "out/split/splice/panel_splice_3.stl": {
+  "bbox": [
+   [
+    -85.0,
+    8.5,
+    14.8
+   ],
+   [
+    -70.5,
+    48.85,
+    15.6
+   ]
+  ],
+  "faces": 12,
+  "sha256": "d1efa99e7318a64e3e21e00d3ac1f09622bea6aeb71da7c4fe3ce427ad6a5f65",
+  "volume": 468.06
+ },
+ "out/split/splice/tray_splice_1.stl": {
+  "bbox": [
+   [
+    -82.0,
+    -42.4,
+    1.0
+   ],
+   [
+    -62.0,
+    42.4,
+    2.0
+   ]
+  ],
+  "faces": 12,
+  "sha256": "c2002367b5c87acdea32d479581a4e5994ec09890da1fcf2772401baef050bf1",
+  "volume": 1696.0
+ },
+ "out/split/tray_A_left.stl": {
+  "bbox": [
+   [
+    -101.0,
+    -46.5,
+    0.0
+   ],
+   [
+    -72.0,
+    53.0,
+    12.85
+   ]
+  ],
+  "faces": 372,
+  "sha256": "d8bf31442f638dfc9b126431947fb1a5deebc2cde6ecca1a564063e40601e794",
+  "volume": 9856.18
+ },
+ "out/split/tray_B_main.stl": {
+  "bbox": [
+   [
+    -72.0,
+    -46.5,
+    0.0
+   ],
+   [
+    101.0,
+    53.0,
+    12.85
+   ]
+  ],
+  "faces": 2234,
+  "sha256": "a0324fae91378c26b70363681529f7ddc3dcc77a12d3ff7509f0b099a9a69361",
+  "volume": 51979.1
+ },
+ "out/tab5_envelope.stl": {
+  "bbox": [
+   [
+    -61.5,
+    -40.0,
+    15.6
+   ],
+   [
+    66.8,
+    40.0,
+    27.6
+   ]
+  ],
+  "faces": 220,
+  "sha256": "813ed1bb87fecc4546c9fbc8067a73020fbb6bb6ef67ef03ae783b9b396e8dac",
+  "volume": 122730.03
+ },
+ "out/whole/lid.stl": {
+  "bbox": [
+   [
+    -101.0,
+    -46.5,
+    5.342
+   ],
+   [
+    101.0,
+    53.0,
+    29.8
+   ]
+  ],
+  "faces": 6642,
+  "sha256": "0e4475896e9a58e18ac23c47d008a65dc496db75a192d1e9288998a3d0e7b1a5",
+  "volume": 65544.32
+ },
+ "out/whole/panel.stl": {
+  "bbox": [
+   [
+    -98.8,
+    -44.75,
+    14.0
+   ],
+   [
+    98.8,
+    51.25,
+    17.6
+   ]
+  ],
+  "faces": 4306,
+  "sha256": "3b1f9f4d30a6570815b1d5ca1d00fa70e4cb0879b447cde122d77f01cbd8dd29",
+  "volume": 18352.75
+ },
+ "out/whole/tray.stl": {
+  "bbox": [
+   [
+    -101.0,
+    -46.5,
+    0.0
+   ],
+   [
+    101.0,
+    53.0,
+    12.85
+   ]
+  ],
+  "faces": 2482,
+  "sha256": "2ef4b512659fbe6de749b167a3d345ab67e435b3e6aa57c5defca4b74d1921f6",
+  "volume": 63594.52
+ }
+}

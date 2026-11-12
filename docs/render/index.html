@@ -1,0 +1,474 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; background: #f3f1ec; overflow: hidden; }
+  canvas { display: block; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./node_modules/three/build/three.module.js",
+  "three/addons/": "./node_modules/three/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<script type="module">
+import * as THREE from 'three';
+import { STLLoader } from 'three/addons/loaders/STLLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { toCreasedNormals, mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+const params = new URLSearchParams(location.search);
+const VIEW = params.get('view') || 'open';
+// colour schemes for the filament mock-ups: lid / tray / bezel panel
+const PALETTES = {
+  default: { lid: '#2c3b6b', tray: '#ebe3cf', panel: '#ebe3cf', r: 0.5 },
+  black:   { lid: '#262629', tray: '#2c2c30', panel: '#1f1f22', r: 0.62 },
+  khaki:   { lid: '#7b7452', tray: '#7b7452', panel: '#857e5b', r: 0.6 },
+  mix:     { lid: '#7b7452', tray: '#2a2a2e', panel: '#1f1f22', r: 0.6 },
+};
+const PAL = PALETTES[params.get('palette') || 'default'] || PALETTES.default;
+const W = window.innerWidth, H = window.innerHeight;
+
+// ---------------------------------------------------------------- renderer / scene
+// level views: no MSAA (edge-on inner walls leaked through the outer faces as 1 px streaks); render.js supersamples
+const LEVEL = VIEW === 'front' || VIEW === 'end';
+const renderer = new THREE.WebGLRenderer({ antialias: !LEVEL, preserveDrawingBuffer: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(W, H);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#f3f1ec');
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.55;
+
+const camera = new THREE.PerspectiveCamera(26, W / H, 5, 5000);
+camera.up.set(0, 0, 1);
+
+const sun = new THREE.DirectionalLight(0xffffff, 2.2);
+sun.position.set(-180, -260, 420);
+sun.castShadow = true;
+sun.shadow.mapSize.set(4096, 4096);
+sun.shadow.camera.left = -260; sun.shadow.camera.right = 260;
+sun.shadow.camera.top = 260; sun.shadow.camera.bottom = -260;
+sun.shadow.camera.near = 50; sun.shadow.camera.far = 1200;
+sun.shadow.bias = -0.0004;
+sun.shadow.radius = 6;
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xfff4e6, 0.6);
+fill.position.set(260, -120, 160);
+scene.add(fill);
+
+// ground with soft shadow
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(3000, 3000),
+  new THREE.ShadowMaterial({ opacity: 0.22 }));
+ground.position.z = -0.05;
+ground.receiveShadow = true;
+scene.add(ground);
+
+// ---------------------------------------------------------------- materials
+const pla = (hex, rough = 0.62) => new THREE.MeshStandardMaterial({ color: hex, roughness: rough, metalness: 0.0 });
+const M = {
+  lid: pla(PAL.lid, PAL.r),
+  cream: pla(PAL.tray, PAL.r),
+  panel: pla(PAL.panel, PAL.r),
+  red: pla('#c9392e', 0.5),
+  kbBody: pla('#2b2b2e', 0.55),
+  key: pla('#1d1d20', 0.5),
+  dark: pla('#141416', 0.4),
+};
+
+// ---------------------------------------------------------------- helpers
+const loader = new STLLoader();
+function loadSTL(url) {
+  return new Promise((res, rej) => loader.load(url, g => {
+    let geo = g;
+    geo.deleteAttribute('normal');
+    geo = mergeVertices(geo, 1e-4);
+    geo = toCreasedNormals(geo, THREE.MathUtils.degToRad(32));
+    res(geo);
+  }, undefined, rej));
+}
+function mesh(geo, mat) {
+  const m = new THREE.Mesh(geo, mat);
+  m.castShadow = true; m.receiveShadow = true;
+  return m;
+}
+function box(sx, sy, sz, mat, x, y, z) {
+  const m = mesh(new THREE.BoxGeometry(sx, sy, sz), mat);
+  m.position.set(x, y, z);
+  return m;
+}
+
+// ---------------------------------------------------------------- screen texture (16:9, a terminal session as a stand-in)
+function screenTexture() {
+  const c = document.createElement('canvas');
+  c.width = 1920; c.height = 1080;          // 2x of 960x540 for sharpness
+  const g = c.getContext('2d');
+  g.scale(2, 2);
+  g.fillStyle = '#11151a'; g.fillRect(0, 0, 960, 540);
+  const CW = 12, CH = 24;
+  g.font = '22px "Noto Sans Mono CJK JP", "DejaVu Sans Mono", monospace';
+  g.textBaseline = 'middle';
+  const wide = ch => /[ᄀ-ᅟ⺀-꓏가-힣豈-﫿︰-﹏＀-｠￠-￦]/.test(ch);
+  const lines = [
+    'pi@raspberrypi:~ $ uptime',
+    ' 21:14:03 up 12 days,  3:41,  1 user,  load average: 0.08, 0.05, 0.01',
+    'pi@raspberrypi:~ $ ls notes',
+    '2026-11-12.md  ideas.md  tab5-pda.md  todo.md',
+    'pi@raspberrypi:~ $ cat notes/todo.md',
+    '# TODO',
+    '- [x] Tab5 を蓋に組み込む',
+    '- [x] CACOE キーボードをつなぐ',
+    '- [ ] 筐体を A1 mini で印刷する',
+    '- [ ] トルクヒンジ HG-MF08 を 2 個買う',
+    'pi@raspberrypi:~ $ df -h /',
+    'Filesystem      Size  Used Avail Use% Mounted on',
+    '/dev/mmcblk0p2   29G  6.1G   22G  23% /',
+    'pi@raspberrypi:~ $ ',
+  ];
+  g.fillStyle = '#d6dde4';
+  let lastX = 0, lastY = 0;
+  lines.forEach((ln, row) => {
+    let col = 0;
+    for (const ch of ln) {
+      const w = wide(ch) ? 2 : 1;
+      g.fillText(ch, col * CW + (w === 2 ? 0 : 0), row * CH + CH / 2 + 1);
+      col += w;
+    }
+    lastX = col; lastY = row;
+  });
+  // block cursor
+  g.fillRect(lastX * CW, lastY * CH + 2, CW, CH - 4);
+  // status bar (black, white text) like renderer.cpp drawStatus()
+  const sy = 21 * CH;
+  g.fillStyle = '#2b6cb0'; g.fillRect(0, sy, 960, 540 - sy);
+  g.fillStyle = '#f2f5f8';
+  const ty = sy + (540 - sy) / 2 + 1;
+  g.fillText('KB:CACOE  Wi-Fi:home 192.168.1.23  SSH:pi@raspberrypi', CW / 2, ty);
+  const right = 'USB 給電';
+  g.textAlign = 'right'; g.fillText(right, 960 - CW / 2, ty); g.textAlign = 'left';
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 8;
+  return t;
+}
+
+// ---------------------------------------------------------------- keyboard (illustration only)
+function keyboard() {
+  const grp = new THREE.Group();
+  // body: KB_SIZE (the kit's estimate, x 194 by y 85, loose in the tray's 196 by 87 room) or the original's room, on the tray
+  // floor; the key tops reach the assumed keyboard thickness (KB_THICK = 11.5 mm in cad/src/params.py, not measured yet)
+  const F = A.TRAY_FLOOR ?? 3.0, KH = 2.2, HB = (KITMODE ? 11.5 : 8.2) - KH;
+  const [KW, KD] = A.KB_SIZE ?? [195, 86];
+  grp.add(box(KW, KD, HB, M.kbBody, 0, 0, F + HB / 2));
+  const rows = [
+    [['`',1],['1',1],['2',1],['3',1],['4',1],['5',1],['6',1],['7',1],['8',1],['9',1],['0',1],['-',1],['=',1],['Bksp',1.5]],
+    [['Tab',1.5],['Q',1],['W',1],['E',1],['R',1],['T',1],['Y',1],['U',1],['I',1],['O',1],['P',1],['[',1],[']',1],['\\',1]],
+    [['Caps',1.75],['A',1],['S',1],['D',1],['F',1],['G',1],['H',1],['J',1],['K',1],['L',1],[';',1],["'",1],['Enter',1.75]],
+    [['Shift',2.25],['Z',1],['X',1],['C',1],['V',1],['B',1],['N',1],['M',1],[',',1],['.',1],['/',1],['Shift',1.25],['↑',1]],
+    [['Fn',1],['Ctrl',1],['Alt',1],['Cmd',1.25],['',5.25],['Alt',1],['Ctrl',1],['←',1],['↓',1],['→',1]],
+  ];
+  const U = 13.0, GAP = 1.4;
+  const totalW = 14.5 * U;
+  const y0 = 2.5 * U - U / 2 + 1;   // first row centre (rows run toward -y = front)
+  rows.forEach((row, r) => {
+    let x = -totalW / 2;
+    const y = y0 - r * U;
+    for (const [lab, w] of row) {
+      const kw = w * U - GAP, kd = U - GAP;
+      const cap = new THREE.Mesh(new THREE.BoxGeometry(kw, kd, KH), [M.key, M.key, M.key, M.key, legendMat(lab, kw, kd), M.key]);
+      cap.castShadow = true; cap.receiveShadow = true;
+      cap.position.set(x + (w * U) / 2, y, F + HB + KH / 2);
+      grp.add(cap);
+      x += w * U;
+    }
+  });
+  return grp;
+}
+const legendCache = {};
+function legendMat(lab, kw, kd) {
+  const key = lab + '|' + kw.toFixed(1);
+  if (legendCache[key]) return legendCache[key];
+  const s = 12;   // px per mm
+  const c = document.createElement('canvas');
+  c.width = Math.round(kw * s); c.height = Math.round(kd * s);
+  const g = c.getContext('2d');
+  g.fillStyle = '#1d1d20'; g.fillRect(0, 0, c.width, c.height);
+  if (lab) {
+    g.fillStyle = '#cfcfcf';
+    const px = lab.length > 1 && !/[←↑↓→]/.test(lab) ? 3.4 : 5.2;
+    g.font = `${Math.round(px * s)}px "DejaVu Sans", sans-serif`;
+    g.textBaseline = 'top';
+    g.fillText(lab, 1.6 * s, 1.4 * s);
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 8;
+  const m = new THREE.MeshStandardMaterial({ map: t, roughness: 0.5 });
+  legendCache[key] = m;
+  return m;
+}
+
+// ---------------------------------------------------------------- assemble
+// hinge, cover and kit positions come from cad/out/assembly.json (written by cad/src/build.py)
+const A = await (await fetch('models/assembly.json')).json();
+const KITMODE = A.PD_MOUNT === 'kit';     // PaperDIY Complete Kit in its own case, in a pocket in a solid lid
+const COVER_STL = !!A.COVER_SCREWED;   // flush covers held by the hinge screws: drawn from their STLs
+const NAMES = (KITMODE ? ['display_lid_usbc', 'tab5_envelope', 'keyboard_tray'].concat(A.PANEL ? ['display_panel_kit'] : [])
+  : ['display_lid_usbc', 'display_panel_paperdiy', 'paperdiy_strap', 'key_pushrod_x2', 'power_pushrod', 'keyboard_tray'])
+  .concat(COVER_STL ? ['hinge_cover_lid_x2', 'hinge_cover_tray_x2'] : []);
+const G = {};
+(await Promise.all(NAMES.map(n => loadSTL(`models/${n}.stl`)))).forEach((g, i) => { G[NAMES[i]] = g; });
+const P = {};          // named parts, for the exploded view
+
+// fixed half: tray + keyboard
+P.tray = mesh(G.keyboard_tray, M.cream); scene.add(P.tray);
+P.kb = keyboard(); scene.add(P.kb);
+
+// moving half: lid parts, rotated about the hinge axis (x axis through y = Y_BACK, z = Z_PART)
+const HINGE_Y = A.Y_BACK, AXIS_Y = A.HINGE_AXIS_Y ?? A.Y_BACK, HINGE_Z = A.Z_PART, HINGE_X = A.HINGE_X, H_LEN = A.HINGE_LEN, H_W = A.HINGE_WIDTH,
+      H_BD = A.HINGE_BARREL_D, H_CLR = A.HINGE_CLR, COVER_T = A.COVER_T, COVER_RIM = A.COVER_RIM, COVER_R0 = A.COVER_R0;
+const pivot = new THREE.Group();
+pivot.position.set(0, AXIS_Y, HINGE_Z);
+const lid = new THREE.Group();
+lid.position.set(0, -AXIS_Y, -HINGE_Z);
+pivot.add(lid);
+scene.add(pivot);
+
+P.lid = mesh(G.display_lid_usbc, M.lid); lid.add(P.lid);
+if (KITMODE) {
+  // the kit in its printed case (front face down in the pocket), e-paper in its window
+  const K = A.KIT;
+  P.paperdiy = new THREE.Group(); lid.add(P.paperdiy);
+  P.paperdiy.add(mesh(G.tab5_envelope, pla('#1c1d20', 0.4)));
+  if (A.PANEL) { P.panel = mesh(G.display_panel_kit, M.panel); lid.add(P.panel); }
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(K.win[0], K.win[1]),
+    new THREE.MeshStandardMaterial({ map: screenTexture(), roughness: 0.6, emissive: 0xffffff, emissiveIntensity: 0.75 }));
+  scr.material.emissiveMap = scr.material.map;
+  scr.position.set(K.cx + K.win_off, K.win_off_y || 0, K.z0 - 0.05);
+  scr.rotation.x = Math.PI;    // face -z (the viewer when open); text up = -y = top of the open lid
+  scr.receiveShadow = true;
+  P.paperdiy.add(scr);
+} else {
+  P.panel = mesh(G.display_panel_paperdiy, M.cream); lid.add(P.panel);
+  P.strap = mesh(G.paperdiy_strap, M.cream); lid.add(P.strap);
+  // push-rods (key rods: the STL holds one rod at the first key; the second sits 12 mm along x)
+  P.keyRods = new THREE.Group(); lid.add(P.keyRods);
+  const rod1 = mesh(G.key_pushrod_x2, M.red); P.keyRods.add(rod1);
+  const rod2 = mesh(G.key_pushrod_x2, M.red); rod2.position.x = -12.0; P.keyRods.add(rod2);
+  P.pwrRod = mesh(G.power_pushrod, M.red); lid.add(P.pwrRod);
+  // plain plate in the lid-top label recess (x 21.7..78, y 21.34..32.5, floor z 28.5); the original
+  // label carries the original author's branding, so it is not shown here
+  P.plate = mesh(new RoundedBoxGeometry(56.0, 11.0, 1.9, 2, 0.6), M.red);
+  P.plate.position.set((21.7 + 78.0) / 2, (21.34 + 32.5) / 2, 28.5 + 0.95);
+  lid.add(P.plate);
+
+}
+
+// hinge barrels (black POM) and the cover plates over the leaves; lid covers follow the lid
+const pom = pla('#1b1b1d', 0.45);
+P.hinges = new THREE.Group(); scene.add(P.hinges);
+P.lidCovers = new THREE.Group(); lid.add(P.lidCovers);
+P.trayCovers = new THREE.Group(); scene.add(P.trayCovers);
+for (const cx of [-HINGE_X, HINGE_X]) {
+  const barrel = mesh(new THREE.CylinderGeometry(H_BD / 2, H_BD / 2, H_LEN, 40), pom);
+  barrel.rotation.z = Math.PI / 2;
+  barrel.position.set(cx, AXIS_Y, HINGE_Z);
+  P.hinges.add(barrel);
+  if (VIEW === 'hinge') {         // show the leaves (they are under the covers otherwise)
+    for (const s of [-1, 1]) {
+      const leaf = box(H_LEN, A.HINGE_LEAF_T, H_W / 2 - H_BD / 2, pla('#26262a', 0.4), cx,
+                       HINGE_Y - (A.HINGE_SINK ?? 0) - A.HINGE_LEAF_T / 2 - 0.05, HINGE_Z + s * (H_BD / 2 + (H_W / 2 - H_BD / 2) / 2));
+      P.hinges.add(leaf);
+    }
+  }
+  if (COVER_STL) {                // the STLs hold the covers of the hinge at x = -HINGE_X (symmetric in x)
+    const lc = mesh(G.hinge_cover_lid_x2, M.lid); lc.position.x = cx + HINGE_X; P.lidCovers.add(lc);
+    const tc = mesh(G.hinge_cover_tray_x2, M.cream); tc.position.x = cx + HINGE_X; P.trayCovers.add(tc);
+    const steel = new THREE.MeshStandardMaterial({ color: '#8d939b', roughness: 0.35, metalness: 0.6 });
+    for (const s of [1, -1]) for (const hx of [-A.HINGE_HOLE_PITCH_X / 2, A.HINGE_HOLE_PITCH_X / 2]) {
+      const head = mesh(new THREE.CylinderGeometry(1.85, 1.85, 0.3, 32), steel);   // M2 flat head, flush in the cover
+      head.position.set(cx + hx, A.COVER_Y_OUT - 0.2, HINGE_Z + s * A.HINGE_HOLE_OFF);
+      (s > 0 ? P.lidCovers : P.trayCovers).add(head);
+    }
+    continue;
+  }
+  const w = H_LEN + 2 * (H_CLR + COVER_RIM), end = H_W / 2 + H_CLR + COVER_RIM;
+  const lz0 = HINGE_Z + COVER_R0, lz1 = A.COVER_LID_Z1 ?? Math.min(HINGE_Z + end, 26.8);
+  const tz0 = Math.max(0.3, HINGE_Z - end), tz1 = HINGE_Z - COVER_R0;
+  const lidCover = mesh(new RoundedBoxGeometry(w, COVER_T, lz1 - lz0, 2, 0.4), M.lid);
+  lidCover.position.set(cx, HINGE_Y + COVER_T / 2, (lz0 + lz1) / 2);
+  P.lidCovers.add(lidCover);
+  const trayCover = mesh(new RoundedBoxGeometry(w, COVER_T, tz1 - tz0, 2, 0.4), M.cream);
+  trayCover.position.set(cx, HINGE_Y + COVER_T / 2, (tz0 + tz1) / 2);
+  P.trayCovers.add(trayCover);
+}
+
+if (!KITMODE) {
+  // PaperDIY itself (simplified envelope from the drawing): e-paper module, PCB at the USB end, ESP32-S3 module
+  const X_TOP = 55.8, X_USB = -59.5;
+  P.paperdiy = new THREE.Group(); lid.add(P.paperdiy);
+  P.paperdiy.add(box(X_TOP - X_USB, 62.5, 1.3, pla('#8d9096', 0.45), (X_TOP + X_USB) / 2, 0, 18.0 + 0.65));
+  P.paperdiy.add(box(67.9, 64.2, 1.6, pla('#1e1f22', 0.5), X_USB + 67.9 / 2, 0, 19.4 + 0.8));
+  P.paperdiy.add(box(18.0, 25.5, 3.1, pla('#b9bcc2', 0.3), -23.2, 31.25 - 25.5 / 2, 21.0 + 1.55));
+
+  // e-paper behind the panel window: window 105.0 x 59.72 centred at x = +1.9, glass face at z = 18
+  const scr = new THREE.Mesh(new THREE.PlaneGeometry(105.0, 59.06),
+    new THREE.MeshStandardMaterial({ map: screenTexture(), roughness: 0.85, emissive: 0xffffff,
+                                     emissiveMap: null, emissiveIntensity: 0.0 }));
+  scr.material.emissiveMap = scr.material.map;
+  scr.material.emissiveIntensity = 0.18;
+  scr.position.set(1.9, 0, 17.9);
+  scr.rotation.x = Math.PI;      // face -z (the viewer when open); text up = -y = top of the open lid
+  scr.receiveShadow = true;
+  P.paperdiy.add(scr);
+
+  // battery (pouch cell) in its bay next to the PaperDIY
+  const B = A.BATT;
+  P.battery = box(B.W, B.L, B.T, pla('#b7b9bd', 0.35), B.cx, B.cy, B.z0 + B.T / 2); lid.add(P.battery);
+
+  // panel-mount USB-C receptacle in the left wall (opening 13 x 7)
+  P.usb = new THREE.Group(); lid.add(P.usb);
+  P.usb.add(box(2.4, 12.6, 6.6, M.dark, -100.0, A.USB_PM_Y, A.USB_PM_Z));
+  P.usb.add(box(0.6, 8.9, 3.2, pla('#3a3a3c', 0.3), -101.05, A.USB_PM_Y, A.USB_PM_Z));
+  if (VIEW === 'exploded') {       // ears + body behind the wall, the part you buy
+    P.usb.add(box(3.0, 36.0, 8.0, M.dark, -96.5, A.USB_PM_Y, A.USB_PM_Z));
+    P.usb.add(box(22.0, 12.0, 7.0, M.dark, -84.0, A.USB_PM_Y, A.USB_PM_Z));
+  }
+
+}
+
+// ---------------------------------------------------------------- figures for the assembly guide (numbered callouts)
+// numbers match the parts list in cad/ASSEMBLY_ja.md; offsets in mm (closed assembly frame);
+// each entry: [part or null, offset applied to the part, anchor point (closed frame, before the offset), number, label]
+const FIGURES = KITMODE ? {
+  exploded: [
+    ['lid',      [0, 0, 150],   [-96, -40, 24],   1,  '蓋 A + B'],
+    ['paperdiy', [0, 0, 100],   [-58, -36, 22],   3,  'M5Stack Tab5'],
+    ['panel',    [0, 0, 62],    [-97, -40, 15.8], 2,  '化粧パネル A + B'],
+    ['kb',       [0, 0, 26],    [-97, -43, 12],   6,  'キーボード'],
+    ['tray',     [0, 0, 0],     [-100, -46, 6],   7,  'トレイ A + B'],
+  ],
+  hinge: [
+    ['hinges',     [0, 0, 0],  [56, 53, 20],    4,  'トルクヒンジ'],
+    ['lidCovers',  [0, 30, 0], [44, 54, 24],    5,  'カバー（蓋側）'],
+    ['trayCovers', [0, 30, 0], [44, 54, 3],     5,  'カバー（トレイ側）'],
+    [null,         [0, 0, 0],  [81, 46.6, 9.5], 0,  'キーボードの充電口'],
+  ],
+} : {
+  exploded: [
+    ['plate',    [0, 0, 186],   [70, 30, 30],     2,  '天面プレート'],
+    ['lid',      [0, 0, 150],   [-96, -40, 30],   1,  '蓋 A + B'],
+    ['usb',      [-34, 0, 150], [-106, 1, 26],    8,  'USB-C 延長'],
+    ['keyRods',  [0, -34, 150], [-29, -44, 22],   7,  '押し棒（3 本）'],
+    ['pwrRod',   [-34, 0, 150], null,             0,  ''],
+    ['strap',    [0, 0, 112],   [-22.6, -38, 26], 3,  'ストラップ'],
+    ['paperdiy', [0, 0, 90],    [-50, -31, 20],   4,  'PaperDIY'],
+    ['battery',  [0, 0, 90],    [94, -28, 27],    5,  '電池'],
+    ['panel',    [0, 0, 66],    [-97, -42, 18],   6,  '画面パネル A + B'],
+    ['kb',       [0, 0, 30],    [-97, -43, 12],   11, 'キーボード'],
+    ['tray',     [0, 0, 0],     [-100, -46, 6],   12, 'トレイ A + B'],
+  ],
+  hinge: [
+    ['hinges',     [0, 0, 0],  [56, 53, 20],    9,  'トルクヒンジ'],
+    ['lidCovers',  [0, 30, 0], [44, 54, 24],    10, 'カバー（蓋側）'],
+    ['trayCovers', [0, 30, 0], [44, 54, 3],     10, 'カバー（トレイ側）'],
+    [null,         [0, 0, 0],  [81, 46.6, 9.5], 0,  'キーボードの充電口'],
+  ],
+};
+const HIDE = { exploded: ['hinges', 'lidCovers', 'trayCovers'], hinge: [] };
+
+function drawCallouts(list) {
+  const cv = document.createElement('canvas');
+  const dpr = window.devicePixelRatio;
+  cv.width = W * dpr; cv.height = H * dpr;
+  Object.assign(cv.style, { position: 'absolute', left: '0', top: '0', width: W + 'px', height: H + 'px' });
+  document.body.appendChild(cv);
+  const g = cv.getContext('2d');
+  g.scale(dpr, dpr);
+  const pts = list.filter(e => e[2]).map(([name, off, a, num, label]) => {
+    const v = new THREE.Vector3(a[0] + off[0], a[1] + off[1], a[2] + off[2]).project(camera);
+    return { x: (v.x + 1) / 2 * W, y: (1 - v.y) / 2 * H, num, label };
+  });
+  const R = 15, GAPY = 40, FONT = '20px "Noto Sans CJK JP", sans-serif';
+  const sides = { left: pts.filter(p => p.x < W * 0.5), right: pts.filter(p => p.x >= W * 0.5) };
+  for (const [side, col] of Object.entries(sides)) {
+    col.sort((a, b) => a.y - b.y);
+    let last = -1e9;
+    for (const p of col) { p.ly = Math.max(p.y, last + GAPY); last = p.ly; }
+    for (const p of col) {
+      const L = side === 'left';
+      const bx = L ? 40 : W - 40;                       // badge centre
+      g.font = FONT;
+      const tw = g.measureText(p.label).width;
+      const tx = L ? bx + (p.num ? R + 8 : -R) : bx - (p.num ? R + 8 : -R);   // text start (left) / end (right)
+      const lx = L ? tx + tw + 8 : tx - tw - 8;          // leader starts after the text
+      g.strokeStyle = '#55555a'; g.lineWidth = 1.4;
+      g.beginPath(); g.moveTo(lx, p.ly); g.lineTo(p.x, p.y); g.stroke();
+      g.fillStyle = '#55555a'; g.beginPath(); g.arc(p.x, p.y, 3.2, 0, 2 * Math.PI); g.fill();
+      if (p.num) {
+        g.fillStyle = '#ffffff'; g.strokeStyle = '#2c3b6b'; g.lineWidth = 2.2;
+        g.beginPath(); g.arc(bx, p.ly, R, 0, 2 * Math.PI); g.fill(); g.stroke();
+        g.fillStyle = '#2c3b6b'; g.font = 'bold 17px "Noto Sans CJK JP", sans-serif';
+        g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(p.num), bx, p.ly + 1);
+      }
+      g.fillStyle = '#26262a'; g.font = FONT; g.textBaseline = 'middle';
+      g.textAlign = L ? 'left' : 'right';
+      g.fillText(p.label, tx, p.ly + 1);
+    }
+  }
+}
+
+// ---------------------------------------------------------------- views
+if (FIGURES[VIEW]) {
+  pivot.rotation.x = 0;
+  for (const [name, off] of FIGURES[VIEW]) if (name) P[name].position.add(new THREE.Vector3(...off));
+  for (const name of HIDE[VIEW]) P[name].visible = false;
+  ground.visible = false;
+  if (VIEW === 'exploded') { camera.position.set(-345, -560, 420); camera.lookAt(-16, 6, 92); }
+  else { camera.position.set(-170, 330, 175); camera.lookAt(40, 40, 10); camera.fov = 22; }
+} else if (VIEW === 'open') {
+  pivot.rotation.x = THREE.MathUtils.degToRad(-112);
+  camera.position.set(-215, -330, 235);
+  camera.lookAt(-4, 18, 40);
+} else if (VIEW === 'closed') {
+  pivot.rotation.x = 0;
+  camera.position.set(-300, -250, 230);
+  camera.lookAt(-2, 8, 12);
+} else if (VIEW === 'back') {
+  pivot.rotation.x = 0;
+  camera.position.set(-230, 330, 170);
+  camera.lookAt(0, 30, 10);
+} else if (VIEW === 'side') {
+  pivot.rotation.x = THREE.MathUtils.degToRad(-112);
+  camera.position.set(-420, -40, 120);
+  camera.lookAt(0, 30, 40);
+} else if (VIEW === 'front' || VIEW === 'end') {   // closed, level, from far away with a narrow lens (near orthographic)
+  pivot.rotation.x = 0;
+  camera.fov = 5.2;
+  camera.near = 2300; camera.far = 2900;          // keep the depth buffer fine at this distance
+  if (VIEW === 'front') { camera.position.set(0, -2600, 13); camera.lookAt(0, 3, 13); }
+  else { camera.position.set(-2600, 3, 13); camera.lookAt(0, 3, 13); }
+} else if (VIEW === 'diag') {                      // closed, from the front right, low
+  pivot.rotation.x = 0;
+  camera.position.set(290, -330, 120);
+  camera.lookAt(4, 6, 10);
+}
+camera.updateProjectionMatrix();
+renderer.render(scene, camera);
+if (FIGURES[VIEW]) drawCallouts(FIGURES[VIEW]);
+document.title = 'ready';
+</script>
+</body>
+</html>
