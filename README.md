@@ -2,6 +2,8 @@
 
 M5Stack Tab5（5 型タッチ液晶、ESP32-P4）と CACOE のキーボードを収める、クラムシェル型の筐体です。3D プリントで作ります。[PaperDIY PDA Terminal](https://github.com/tsuyoshi-otake/paperdiy-pda-terminal) の筐体を、画面を Tab5 に替えて作り直したものです。
 
+**関連プロジェクト**：元になった PaperDIY 版（4.7 型 e-paper、ファームウェア付き）は、[PaperDIY PDA Terminal](https://github.com/tsuyoshi-otake/paperdiy-pda-terminal) にあります（トレイ・ヒンジ・留めツメは同じ形）。
+
 ![開いたところ（完成予想）](docs/images/render_open.png)
 
 ## いまの状態
