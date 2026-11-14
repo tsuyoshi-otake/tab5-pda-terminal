@@ -20,7 +20,7 @@ Where the lid sits front to back is set by the hinge leaves' seats and the print
 | lid at +0.0 | 0.36 | 10.2 | -0.00 | 13.1 | 0.10 | 0.30 | holds |
 | lid at +0.1 | 0.46 | 13.7 | +0.10 | 16.7 | 0.03 | 0.38 | holds |
 | lid at +0.2 | 0.56 | 17.3 | +0.20 | 20.5 | 0.02 | 0.46 | holds |
-| lid at +0.3 | 0.66 | 20.9 | +0.29 | 24.4 | 0.00 | 0.54 | holds, hard to close, strain over 0.5 % |
+| lid at +0.3 | 0.66 | 20.9 | +0.29 | 24.4 | 0.02 | 0.54 | holds, hard to close, strain over 0.5 % |
 
 ## 2. The lid is free to shift front to back (0.5 N to move it)
 

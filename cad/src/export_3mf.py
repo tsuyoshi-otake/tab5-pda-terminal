@@ -23,7 +23,7 @@ import numpy as np
 import trimesh
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from params import CAD_DIR, OUT_DIR, SPLIT_DIR, USB_PM_SCREW_SPACING, USB_PM_VARIANTS, WHOLE_BED, WHOLE_DIR  # noqa: E402
+from params import CAD_DIR, OUT_DIR, SPLIT_DIR, USB_PM_SCREW_SPACING, USB_PM_VARIANTS, WHOLE_BED, WHOLE_DIR, piece_names  # noqa: E402
 
 BED = 180.0
 MARGIN = 3.0     # keep parts this far from the bed edge
@@ -76,6 +76,9 @@ def part(path, *rots):
 
 def S(name):
     return os.path.join(SPLIT_DIR, f"{name}.stl")
+
+
+(LA, LB), (TA, TB), (PA, PB) = piece_names("lid"), piece_names("tray"), piece_names("panel")   # (end piece, main piece)
 
 
 def O(name):
@@ -150,25 +153,25 @@ def plates():
             ]),
             # navy: lid pieces, top face on the bed (tilted level); no supports needed
             "plate1_lid.3mf": ("Lid (A + B)", [
-                [("lid_A_left", part(S("lid_A_left"), LAY_TOP, FLIP_X, ROT_Z90)),
+                [(LA, part(S(LA), LAY_TOP, FLIP_X, ROT_Z90)),
                  ("hinge_cover_lid_1", part(O("hinge_cover_lid_x2"), LAY_FLAT_Y)),
                  ("hinge_cover_lid_2", part(O("hinge_cover_lid_x2"), LAY_FLAT_Y))],
-                [("lid_B_main", part(S("lid_B_main"), LAY_TOP, FLIP_X))],
+                [(LB, part(S(LB), LAY_TOP, FLIP_X))],
             ] + splice_row("lid", LAY_TOP, FLIP_X)),
             # cream: keyboard tray pieces, floor on the bed
             "plate2_tray.3mf": ("Keyboard tray (A + B)", [
-                [("tray_A_left", part(S("tray_A_left"), ROT_Z90)),
+                [(TA, part(S(TA), ROT_Z90)),
                  ("hinge_cover_tray_1", part(O("hinge_cover_tray_x2"), LAY_FLAT_Y)),
                  ("hinge_cover_tray_2", part(O("hinge_cover_tray_x2"), LAY_FLAT_Y))],
-                [("tray_B_main", part(S("tray_B_main")))],
+                [(TB, part(S(TB)))],
             ] + splice_row("tray")),
         } | ({
             # bezel panel pieces, visible face on the bed (the locating rim grows upward)
             "plate3_panel.3mf": ("Bezel panel (A + B)", [
-                [("panel_A_left", part(S("panel_A_left"), ROT_Z90))],
-                [("panel_B_main", part(S("panel_B_main")))],
+                [(PA, part(S(PA), ROT_Z90))],
+                [(PB, part(S(PB)))],
             ] + splice_row("panel")),
-        } if os.path.exists(S("panel_B_main")) else {}) | {
+        } if os.path.exists(S(PB)) else {}) | {
             f"usb_variants/{usb_name(sp)}.3mf": (
                 f"Lid A for a USB-C panel mount with {sp:g} mm hole spacing" if sp > 0
                 else "Lid A, USB-C panel-mount opening only (glue the connector in)",

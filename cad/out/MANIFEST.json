@@ -1,7 +1,7 @@
 {
  "3mf/bambu_a1mini/bambu_plate0_test_coupons.3mf": {
   "objects": 6,
-  "sha256": "9b1acb8edda2bb96e03aa7b66e522c06792a7d6deb8baeae61806e7fded44842",
+  "sha256": "749cf1d125dd2fee9940f8a12f35953293f5e84a84736d0ea985656958695b3d",
   "volumes": [
    207.22,
    223.61,
@@ -12,15 +12,14 @@
   ]
  },
  "3mf/bambu_a1mini/bambu_plate1_lid.3mf": {
-  "objects": 6,
-  "sha256": "7d0db06a13e4d81fbc4de9ffff21d9af7b3a0923ca8fdf37f97c220f17e57662",
+  "objects": 5,
+  "sha256": "31ae2d1b7b026da47f27f249dfa6ab6edd8ae4ada4899420df532a653ec9f4f7",
   "volumes": [
    223.61,
    223.61,
-   432.0,
-   536.0,
-   11844.94,
-   52744.35
+   1120.0,
+   12115.08,
+   48680.91
   ]
  },
  "3mf/bambu_a1mini/bambu_plate2_tray.3mf": {
@@ -35,14 +34,12 @@
   ]
  },
  "3mf/bambu_a1mini/bambu_plate3_panel.3mf": {
-  "objects": 5,
-  "sha256": "e23a728675e51338998c0e2e71d3f7c27db4c3a2a54156db1e988feecf0a2cc2",
+  "objects": 3,
+  "sha256": "c4b0702d712f5844b752a9693a18ceecb2b4f17b3dc5da9fe1ed54d9aaf39923",
   "volumes": [
-   56.26,
-   113.68,
-   468.06,
-   2674.49,
-   15037.36
+   806.4,
+   3171.94,
+   12175.22
   ]
  },
  "3mf/bambu_a1mini/tab5_process_a1mini_04.json": {
@@ -50,11 +47,11 @@
  },
  "3mf/large/plate1_lid.3mf": {
   "objects": 3,
-  "sha256": "89671d37cb012e5651a0a7b25400a53aeb158129d14c7e53c26796ab63941539",
+  "sha256": "708a2ae0184b38f3ebc436252269353dbdfe91d2cd04c1dbef3a2e0e7a5512c6",
   "volumes": [
    223.61,
    223.61,
-   65614.37
+   61967.95
   ]
  },
  "3mf/large/plate2_tray.3mf": {
@@ -68,14 +65,14 @@
  },
  "3mf/large/plate3_panel.3mf": {
   "objects": 1,
-  "sha256": "3fb3947b1e0722bc0335a9eb5316839cea1b561d9d33c6b9bea2ab1ab3b7ea18",
+  "sha256": "7ec8e9d3a5da8cc963f992d88817719b31f32774e02409c5598fb2fb61b54254",
   "volumes": [
-   18397.99
+   16199.93
   ]
  },
  "3mf/plate0_test_coupons.3mf": {
   "objects": 6,
-  "sha256": "b02b2102544f4b297882394801ef7c09ee864f4ed1a468e6295021265c57ec95",
+  "sha256": "9220aaeca0fe932a1e329645f97b27c108a634ef0bacdc3cbb425bd2f8cf6e20",
   "volumes": [
    207.22,
    223.61,
@@ -86,15 +83,14 @@
   ]
  },
  "3mf/plate1_lid.3mf": {
-  "objects": 6,
-  "sha256": "3268fa3144d2a49479d714917111a25261a8e9d71759060f58ed09832bb6b92a",
+  "objects": 5,
+  "sha256": "4ebba355a67560cce5bac0f4af0fc6d6963234caf05d004cd1a0a2bcb6b96264",
   "volumes": [
    223.61,
    223.61,
-   432.0,
-   536.0,
-   11844.94,
-   52744.35
+   1120.0,
+   12115.08,
+   48680.91
   ]
  },
  "3mf/plate2_tray.3mf": {
@@ -109,18 +105,16 @@
   ]
  },
  "3mf/plate3_panel.3mf": {
-  "objects": 5,
-  "sha256": "99ae2e40b3acb43e457f812993d8b39fdcd6801cbb0e8fc34b0a737b9ff1dd5a",
+  "objects": 3,
+  "sha256": "979aadcfb72f3285bd6b720468e39ee306d6af37c127b79c9667db9962f67d68",
   "volumes": [
-   56.26,
-   113.68,
-   468.06,
-   2674.49,
-   15037.36
+   806.4,
+   3171.94,
+   12175.22
   ]
  },
  "out/assembly.json": {
-  "sha256": "ae9e33a4a11587b3de3581f5cee5589b6de3df9359623c13e894f04499e9bae8"
+  "sha256": "2690961fd9da55b4cca4ddce50080623d5d2d197ec77257082792bf78868a40c"
  },
  "out/coupons/coupon_hinge_lid.stl": {
   "bbox": [
@@ -135,8 +129,8 @@
     29.8
    ]
   ],
-  "faces": 1280,
-  "sha256": "e97d3b1f8244894680decd660cb8e0afa68b260d084e10a6637f38c1a498d0b1",
+  "faces": 1268,
+  "sha256": "eef33fa98db73e5b40bfbbdeb663c31888dba0279626f6b2700eca73ca14e8ca",
   "volume": 2483.58
  },
  "out/coupons/coupon_hinge_tray.stl": {
@@ -170,7 +164,7 @@
    ]
   ],
   "faces": 94,
-  "sha256": "5e59f9d29522c184f2fcf0341dfe5bcecd1b00b9537a410bceac80c1fc10f6c4",
+  "sha256": "dfbca57185326fae1707b40a312d5f53962b785f7b1963570b4ba368cf88f98f",
   "volume": 2483.13
  },
  "out/coupons/coupon_latch_tray.stl": {
@@ -206,9 +200,9 @@
     29.8
    ]
   ],
-  "faces": 5874,
-  "sha256": "06e997b40e1817eec1545ea32ca4ebeda20a7a4cee4941cb15cb7a3c016053fb",
-  "volume": 65614.36
+  "faces": 5464,
+  "sha256": "e69fc3d0afe1b6bccfa3336255bc353760fa8a0c5ff15ba68dd0bf9f4627d2d7",
+  "volume": 61967.93
  },
  "out/display_panel_kit.stl": {
   "bbox": [
@@ -223,9 +217,9 @@
     17.6
    ]
   ],
-  "faces": 3134,
-  "sha256": "8f936e62006abcea98680e0bb496c609cee85effb7aa112b442b5b9e880f6d31",
-  "volume": 18397.99
+  "faces": 3012,
+  "sha256": "64312a8b15ebc58008e3a7d65f1bf50680720c0dc6a2d46e9f3df564c5f3c95f",
+  "volume": 16199.93
  },
  "out/hinge_cover_lid_x2.stl": {
   "bbox": [
@@ -278,29 +272,12 @@
   "sha256": "2ef4b512659fbe6de749b167a3d345ab67e435b3e6aa57c5defca4b74d1921f6",
   "volume": 63594.52
  },
- "out/split/lid_A_left.stl": {
+ "out/split/lid_A_right.stl": {
   "bbox": [
    [
-    -101.0,
+    72.0,
     -46.5,
     7.942
-   ],
-   [
-    -72.0,
-    53.0,
-    29.8
-   ]
-  ],
-  "faces": 1292,
-  "sha256": "45b4a796e21eb7fdc239941bb283f090b3c362e8857be2f25be1c88534c3484c",
-  "volume": 11844.94
- },
- "out/split/lid_B_main.stl": {
-  "bbox": [
-   [
-    -72.0,
-    -46.5,
-    5.342
    ],
    [
     101.0,
@@ -308,128 +285,94 @@
     29.8
    ]
   ],
-  "faces": 4776,
-  "sha256": "7d36cd5ad5dec5fae9483b35010380017a52a9917137e26a75390a878b1e2811",
-  "volume": 52744.34
+  "faces": 1628,
+  "sha256": "84245acd3c1791989b4ec22912645b04ef2a7b9a36c4dd59fc042434f929c645",
+  "volume": 12115.08
  },
- "out/split/panel_A_left.stl": {
+ "out/split/lid_B_main.stl": {
   "bbox": [
    [
-    -98.8,
+    -101.0,
+    -46.5,
+    5.342
+   ],
+   [
+    72.0,
+    53.0,
+    29.8
+   ]
+  ],
+  "faces": 3924,
+  "sha256": "b8dbb6df0e5d66a1a64b5611d532cd93e4900bc9f69a2c0fb0ed49daa920bee1",
+  "volume": 48680.9
+ },
+ "out/split/panel_A_right.stl": {
+  "bbox": [
+   [
+    75.0,
     -44.3,
     14.0
    ],
    [
-    -75.0,
+    98.8,
     50.8,
     15.6
    ]
   ],
-  "faces": 854,
-  "sha256": "88b8afe8c8f20cc1126a68f8746bdd2e3ef6402339817c2761b2aa4725058fb0",
-  "volume": 2674.49
+  "faces": 712,
+  "sha256": "f0c9e4e0ce1e6d5e6cbdbe0cab2798f68c90c45f444fe36a4367f66a05959945",
+  "volume": 3171.94
  },
  "out/split/panel_B_main.stl": {
   "bbox": [
    [
-    -75.0,
+    -98.8,
     -44.75,
     14.0
    ],
    [
-    98.8,
+    75.0,
     51.25,
     17.6
    ]
   ],
-  "faces": 2402,
-  "sha256": "913056c0c6fc7120c46976110e9146c58179c055be1c3a7b92859136a6989cac",
-  "volume": 15037.36
+  "faces": 2348,
+  "sha256": "c5ec3a8e2f1a5c8f9e223dd9b37d0777c8d5b9ab8dd3962f293439092aa4d14e",
+  "volume": 12175.23
  },
  "out/split/splice/lid_splice_1.stl": {
   "bbox": [
    [
-    -82.0,
-    -44.0,
+    64.0,
+    -35.0,
     27.8
    ],
    [
-    -66.0,
-    -17.0,
+    80.0,
+    35.0,
     28.8
    ]
   ],
   "faces": 12,
-  "sha256": "67517eb70f7283239e95f4a74ada20027189097d07659f384be8a5e5bc301d05",
-  "volume": 432.0
- },
- "out/split/splice/lid_splice_2.stl": {
-  "bbox": [
-   [
-    -82.0,
-    17.0,
-    27.8
-   ],
-   [
-    -66.0,
-    50.5,
-    28.8
-   ]
-  ],
-  "faces": 12,
-  "sha256": "0af3dabe7de5e23310a707cdcd66221e9c0e3c094f1fd180e142df8b25137451",
-  "volume": 536.0
+  "sha256": "ea3f7c357d043eb33995129dc599a6a955371915eee404f6da29d6b1b234d50f",
+  "volume": 1120.0
  },
  "out/split/splice/panel_splice_1.stl": {
   "bbox": [
    [
-    -85.0,
-    -42.35,
+    69.0,
+    -42.0,
     14.8
    ],
    [
-    -70.5,
-    -37.5,
+    81.0,
+    42.0,
     15.6
    ]
   ],
   "faces": 12,
-  "sha256": "9802d6551d48cec45d4188c58688d554a963d03ec848dab0e2140d8f5d560442",
-  "volume": 56.26
- },
- "out/split/splice/panel_splice_2.stl": {
-  "bbox": [
-   [
-    -85.0,
-    -18.3,
-    14.8
-   ],
-   [
-    -70.5,
-    -8.5,
-    15.6
-   ]
-  ],
-  "faces": 12,
-  "sha256": "828180dc619cc0de4b6da2644ccddd0960ca4564cd7e573217471950b1b0cfb7",
-  "volume": 113.68
- },
- "out/split/splice/panel_splice_3.stl": {
-  "bbox": [
-   [
-    -85.0,
-    8.5,
-    14.8
-   ],
-   [
-    -70.5,
-    48.85,
-    15.6
-   ]
-  ],
-  "faces": 12,
-  "sha256": "d1efa99e7318a64e3e21e00d3ac1f09622bea6aeb71da7c4fe3ce427ad6a5f65",
-  "volume": 468.06
+  "sha256": "962a15db7a2603e80fa7877b1199373527a30c9feec3dc1f0fec85c4bd72525d",
+  "volume": 806.4
  },
  "out/split/splice/tray_splice_1.stl": {
   "bbox": [
@@ -512,9 +455,9 @@
     29.8
    ]
   ],
-  "faces": 5874,
-  "sha256": "06e997b40e1817eec1545ea32ca4ebeda20a7a4cee4941cb15cb7a3c016053fb",
-  "volume": 65614.36
+  "faces": 5464,
+  "sha256": "e69fc3d0afe1b6bccfa3336255bc353760fa8a0c5ff15ba68dd0bf9f4627d2d7",
+  "volume": 61967.93
  },
  "out/whole/panel.stl": {
   "bbox": [
@@ -529,9 +472,9 @@
     17.6
    ]
   ],
-  "faces": 3134,
-  "sha256": "8f936e62006abcea98680e0bb496c609cee85effb7aa112b442b5b9e880f6d31",
-  "volume": 18397.99
+  "faces": 3012,
+  "sha256": "64312a8b15ebc58008e3a7d65f1bf50680720c0dc6a2d46e9f3df564c5f3c95f",
+  "volume": 16199.93
  },
  "out/whole/tray.stl": {
   "bbox": [

@@ -91,7 +91,23 @@ KIT_PWR_CAP_Y = (-32.5, -23.3)   # [M:size drawing] power / reset button on the 
 KIT_PWR_CAP_OUT = 0.3         # [A] about flush
 KIT_PWR_CAP_Z = (3.0, 9.0)    # [A] the button's depth behind the screen face
 KIT_USB_Y = 0.0               # [M:size drawing] USB-C centre on the left edge: half way up
-KIT_USB_Z = (6.6, 9.8)        # [M:size drawing] port depth behind the screen face (centre 3.8 mm from the back) -> MEASURE
+KIT_USB_Z = (7.2, 9.7)        # [M:Tab5.stl] the housing's USB-C opening behind the screen face (the drawing: 6.8..10.3) -> MEASURE
+# The other ports on that edge, top to bottom: power button, USB-A, USB-C, 3.5 mm headset jack, Grove PORT.A (and the
+# pin map's order). [M:size drawing] the side view of the edge (first-angle: drawn right of the front view), read at the
+# line centres: 9.84 px/mm along the edge (its 80 mm), the 12 mm thickness between the outline's two lines. The power
+# button's opening (d 2.3..10.4) and the USB-C (36.4..44.1 from the top, d 6.8..10.3) agree with Tab5.stl to 0.4 mm;
+# its housing has no openings for the other three. y = lid y of the plug's axis (mm from the Tab5's top edge - 40),
+# d = its depth behind the screen face. plug = (width, height, length out of the Tab5's side) of the plug to make room
+# for: the end-wall openings and the fit checks use it. MEASURE on a real Tab5.
+KIT_PORTS = (
+    # receptacle 19.0..31.1 from the top edge, its shell from the back face to d 5.2 (12.2 x 6.8 drawn)
+    dict(key="usb_a", name="USB-A", y=-15.0, d=8.6, plug=(16.0, 8.0, 30.0)),
+    dict(key="usb_c", name="USB-C", y=KIT_USB_Y, d=sum(KIT_USB_Z) / 2, plug=(12.0, 6.5, 24.0)),
+    # a round opening Ø6.2, 53.0 from the top edge, its centre 3 mm in front of the back face
+    dict(key="jack", name="3.5 mm headset", y=13.0, d=9.0, plug=(7.5, 7.5, 25.0), round=True),
+    # HY2.0-4P: 4 pins at 2.0 mm pitch round 66.0 from the top edge, at d 9.0; the housing from the back face to d 7.1
+    dict(key="grove", name="Grove (PORT.A)", y=26.0, d=9.3, plug=(10.0, 5.0, 12.0)),
+)
 KIT_SCREW_D = 20.0
 KIT_MASS_G = 120.9            # [M: docs.m5stack.com Tab5] without battery
 KIT_CAMERA = (59.55, 0.0, 6.0)   # [M:size drawing] camera (d 5) 4.45 mm from the right edge, half way up: x from the centre, y, hole
@@ -159,6 +175,16 @@ KIT_LID = os.environ.get("KIT_LID", "shell")
 SHELL_WALL = WALL
 SHELL_CEIL = WALL
 USB_CEIL = SHELL_CEIL         # no relief over the USB-C plug path (the plug runs below the Tab5's back)
+# Port bay (shell lid): the space between the Tab5's left edge and the lid's left end wall (38 mm) is open from the
+# screen side through the bezel panel, so every port on that edge can be reached: a plug goes in through its opening in
+# the end wall (the cable stays there), and a finger in the bay guides it into the port and pushes it home. With the lid
+# shut the bay faces the keyboard and the cables leave by the left end. No ribs in the bay (fingers need the room).
+#   clr: around each plug in the end-wall openings; openings closer than `merge` become one
+#   ceil_clr: least gap between a plug and the ceiling; where a plug needs more, the ceiling over its lane (end wall to
+#             the Tab5) is thinned from inside to `skin` (the USB-A and headset plugs stand 0.4-0.6 mm above the
+#             Tab5's back)
+#   y: the bay in the panel (and the clear space in the lid); frame: what is left of the panel along its left edge
+PORT_BAY = dict(clr=0.5, merge=2.0, ceil_clr=0.2, skin=LID_SKIN, y=(-24.5, 32.5), frame=3.0, r=0.75)
 PANEL_T = 1.6                 # bezel panel (countersunk M2x8 heads: 1.2 deep)
 PANEL_CLR = 0.2               # panel to the lid's walls and hinge pads
 PANEL_WIN_CLR = 0.3           # window = the kit's window + 0.3 per side (the kit can shift by KIT_FIT), square edges
@@ -168,17 +194,16 @@ PANEL_SLOT = dict(out=11.0, end=3.0, r=0.75)  # finger slot through the panel be
 # pocket (ring + the kit's edge) instead of getting into the lid
 PANEL_GUARD = None
 PANEL_SCREWS = ((-91.0, -37.5), (91.0, -37.5), (-91.0, 46.0), (91.0, 46.0))      # the four corners, clear of the housings
-# Pillars: the same columns from the ceiling without a screw. The panel's back rests on them beside the Tab5 (either
-# side of the USB-C path on the left, front and back on the right), so it cannot be pushed in there.
-PANEL_PILLARS = ((-66.5, -12.5), (-66.5, 12.5), (74.5, -39.5), (74.5, 40.0))
+# Pillars: the same columns from the ceiling without a screw. The panel's back rests on them right of the Tab5, front
+# and back (clear of the lid's seam at x 72), so it cannot be pushed in there. The left of the Tab5 is the port bay.
+PANEL_PILLARS = ((78.5, -39.5), (78.5, 40.0))
 # Ribs on the panel's screw bosses (Ø6 columns hanging 6.4-8.6 mm from the lid's ceiling): toward a wall closer than
 # `tie` a rib runs into the wall (full height), elsewhere a gusset `len` long (its edge slopes from the boss's foot to
 # the ceiling); none into the kit's rim or the lid's splice-plate pockets. All stop `gap` above the panel's back.
 PANEL_BOSS_R = 3.0
 PANEL_BOSS_RIBS = dict(t=RIB_T, len=3.0, tie=5.5, gap=0.5, min_len=1.5)
-# The panel is open over the USB-C plug path (left edge to the kit's port, like the button slots): a plug can be
-# guided into the port by hand, and a panel-mount female's inner plug goes in and out without taking the panel off.
-PANEL_USB_SLOT = dict(frame=2.2, half=6.6, r=0.75)  # None = closed; frame left at the panel's left edge
+# The PaperDIY version's slot over the USB-C plug path alone; here the port bay (PORT_BAY) takes its place.
+PANEL_USB_SLOT = None
 # snap detents: bumps on the panel's front and back edges click into shallow grooves in the lid's walls (which flex
 # outward as the panel goes in), so the panel stays in without its screws. x: between the wall ribs, clear of the latch,
 # the KEY slot and the hinge pads. Profile across the edge: a ridge with its peak h out from the panel edge at
@@ -191,7 +216,7 @@ PANEL_SNAP = dict(x_front=(-60.0, 26.0), x_back=(-23.0, 26.0), len=8.0, h=0.45, 
 PANEL_DOVETAIL = dict(neck=4.5, head=7.0, depth=5.0, clr=0.2)
 PANEL_DOVETAIL_Y = (-37.3, 0.0, 42.0)
 KIT_RIBS_X = (-45.0, -15.0, 12.0)            # ribs from the ceiling onto the Tab5's back cover (left of the battery bay)
-USB_GUIDE_X = (-99.6, None)                  # USB-C guide ribs from the end wall (inner face -99.4) to the kit, either side of the plug path
+USB_GUIDE_X = None                           # no USB-C guide ribs: the port bay is open (PORT_BAY)
 SPLIT_BLOCK = None if PD_MOUNT == "kit" else dict(dx=7.0, dy=7.0, h=3.4)   # bare: thicker ceiling around the lid's keys
 # Kit: how the A1 mini split pieces meet: "straight" (a plain cut at SPLIT_X_*: a straight seam, aligned and held by the
 # splice plates below) or "dovetail" (three glued dovetail keys per seam besides, DOVETAIL / PANEL_DOVETAIL).
@@ -201,10 +226,13 @@ SPLIT_JOINT = "straight" if PD_MOUNT == "kit" else "dovetail"
 # half the wall deep in both halves, so they sit flush; the pockets face up in print (no bridging).
 # x0/x1: the plate's ends relative to the split; y: the plates (clear of the USB-C channel, the slots, the rim and the
 # screw bosses; the tray's: inside the keyboard's room, so it goes in from above past the deck).
+# The lid and the panel are cut at their right ends (SPLIT_X_LID, SPLIT_X_PANEL > 0), so the port bay at the left end
+# is in one piece with its ceiling at full strength: the lid's plate runs between the pillars, the panel's right of
+# the rim round the Tab5.
 SPLICE = dict(clr=0.3,                # per side (0.15 printed too tight: the plates print flat, with elephant foot)
               tray=dict(t=WALL / 2, x0=-10.0, x1=10.0, y=((-42.4, 42.4),)),
-              lid=dict(t=WALL / 2, x0=-10.0, x1=6.0, y=((-44.0, -17.0), (17.0, 50.5))),
-              panel=dict(t=PANEL_T / 2, x0=-10.0, x1=4.5, y=((-42.35, -37.5), (-18.3, -8.5), (8.5, 48.85))))   # >= 1.5 mm from edges / slots
+              lid=dict(t=WALL / 2, x0=-8.0, x1=8.0, y=((-35.0, 35.0),)),
+              panel=dict(t=PANEL_T / 2, x0=-6.0, x1=6.0, y=((-42.0, 42.0),)))   # >= 1.5 mm from edges / slots
 # USB-C at the left end: "direct" = a straight cable into the kit's port through the end-wall opening (default);
 # lid A also comes for a screw-ear panel-mount female (USB_PM_*), at y = USB_PM_Y, so the end can be swapped later.
 USB_PM_Y_KIT = 20.0            # clear of the lid's split blocks (y 5, 36) and the power slot
@@ -359,9 +387,18 @@ KB_SW_W = 8.0                 # [A] TODO
 KB_SW_BOTTOM_Z = 5.5          # [A] TODO notch bottom (wall top there is ~z 9.6)
 
 # A1 mini splitting
-SPLIT_X_LID = -72.0           # clear of hinge knuckle (|x|<=44) and camera window (x>=-68.9)
+SPLIT_X_LID = 72.0 if PD_MOUNT == "kit" else -72.0   # kit: the right end (the port bay at the left stays whole); clear
+                                                      # of the hinge seats and of the pillars (x 75.5..81.5)
 SPLIT_X_TRAY = -72.0          # clear of tray hinge ears (|x| 46..61) and rear opening (x 72.9..89.1)
-SPLIT_X_PANEL = -75.0         # 2.6 mm clear of the power slot (x >= -72.4), panel B 173.8 mm
+SPLIT_X_PANEL = 75.0 if PD_MOUNT == "kit" else -75.0  # kit: the right end, clear of the camera hole; panel B 173.8 mm
+
+
+def piece_names(kind):
+    """(end piece, main piece) file names of a part split for the A1 mini: the end piece is named after its side."""
+    X = {"lid": SPLIT_X_LID, "tray": SPLIT_X_TRAY, "panel": SPLIT_X_PANEL}[kind]
+    return f"{kind}_A_{'left' if X < 0 else 'right'}", f"{kind}_B_main"
+
+
 MAX_PIECE = 175.0
 WHOLE_BED = 220.0   # the unsplit plates are laid out on a 220 x 220 mm bed (fits 220 mm beds and bigger)
 DOVETAIL = dict(neck=6.0, head=10.0, depth=6.0, clr=0.2)   # glued dovetail keys (0.4 total clearance)

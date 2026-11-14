@@ -31,7 +31,7 @@ CAD = os.path.dirname(HERE)
 sys.path.insert(0, os.path.join(CAD, "src"))
 from params import (HINGE_TORQUE, HINGE_TORQUE_TOL, LATCH, BACK_OLD_Y, PART_RELIEF, KIT_WIN_OFF_Y)  # noqa: E402
 from params import (OUT_DIR, SPLIT_DIR, Y_BACK, HINGE_AXIS_Y, Z_PART, PD_L, PD_TOP_X, PANEL_Z_BACK, BATT_CX, BATT_CY,  # noqa: E402
-                    BATT_T, USB_PM_Y, USB_PM_Z, PD_MOUNT, KIT_MASS_G, KIT_CX, KIT_T, USB_CEIL)
+                    BATT_T, USB_PM_Y, USB_PM_Z, PD_MOUNT, KIT_MASS_G, KIT_CX, KIT_T, USB_CEIL, PORT_BAY, piece_names)
 
 INI = os.path.join(HERE, "a1mini_pla_020.ini")
 PLA = 1.24                      # g/cm3
@@ -61,11 +61,11 @@ ROD_NOTE = ("the snap tip: each half of the split end is one 1 mm perimeter loop
 THIN_NOTE = {"panel_B_main": "the screen-window bevel ends in a sharp edge (as in the original panel)",
              "key_pushrod_x2": ROD_NOTE, "power_pushrod": ROD_NOTE}
 if PD_MOUNT == "kit":
-    THIN_NOTE["lid_A_left"] = (f"the ceiling over the USB-C channel is {USB_CEIL:g} mm (USB_CEIL), printed as the first "
-                               "layers on the bed")
-    THIN_NOTE["panel_B_main"] = "the snap bumps on its front and back edges come to a ridge"
+    THIN_NOTE[piece_names("lid")[1]] = (f"the ceiling over the USB-A, USB-C and headset lanes of the port bay is "
+                                        f"{PORT_BAY['skin']:g} mm, printed as the first layers on the bed")
+    THIN_NOTE[piece_names("panel")[1]] = "the snap bumps on its front and back edges come to a ridge"
     _sp = "the splice-plate pockets at the seam leave half the wall until the plate is glued in"
-    for _p in ("lid_A_left", "lid_B_main", "tray_A_left", "tray_B_main", "panel_A_left", "panel_B_main"):
+    for _p in piece_names("lid") + piece_names("tray") + piece_names("panel"):
         THIN_NOTE[_p] = (THIN_NOTE[_p] + "; " + _sp) if _p in THIN_NOTE else _sp
     for _c in ("hinge_cover_lid_x2", "hinge_cover_tray_x2"):
         THIN_NOTE[_c] = ("a 1 mm plate; the thin spots are the edges of the screw countersinks and of the cones under "
@@ -74,10 +74,10 @@ if PD_MOUNT == "kit":
 LID_PARTS = [("lid_A_left", 1), ("lid_B_main", 1), ("panel_A_left", 1), ("panel_B_main", 1), ("paperdiy_strap", 1),
              ("key_pushrod_x2", 2), ("power_pushrod", 1), ("hinge_cover_lid_x2", 2), ("top_plate_blank", 1)]
 if PD_MOUNT == "kit":
-    LID_PARTS = [("lid_A_left", 1), ("lid_B_main", 1), ("hinge_cover_lid_x2", 2)]
-    if os.path.exists(os.path.join(SPLIT_DIR, "panel_B_main.stl")):
-        LID_PARTS += [("panel_A_left", 1), ("panel_B_main", 1)]
-BASE_PARTS = [("tray_A_left", 1), ("tray_B_main", 1), ("hinge_cover_tray_x2", 2)]
+    LID_PARTS = [(n, 1) for n in piece_names("lid")] + [("hinge_cover_lid_x2", 2)]
+    if os.path.exists(os.path.join(SPLIT_DIR, piece_names("panel")[1] + ".stl")):
+        LID_PARTS += [(n, 1) for n in piece_names("panel")]
+BASE_PARTS = [(n, 1) for n in piece_names("tray")] + [("hinge_cover_tray_x2", 2)]
 
 
 def stl(name):
@@ -249,21 +249,45 @@ def unprinted(path, gcode, skin=0.30, thin=1.5):
     return out
 
 
+def bridge_layers():
+    """Print heights (lid top face on the bed) at which the openings in the lid's left end wall (port bay) close: the
+    layer there bridges the opening, and the slicer leaves the wall's outer 0.3 mm on both faces to the layer above."""
+    import contextlib
+    import io
+    with contextlib.redirect_stdout(io.StringIO()):
+        import build as B
+    if not (B.SHELL and B.PORT_BAY):
+        return []
+    return [B.LID_TOP[0] - B.KIT_Z0 - l["d0"] for l in B.port_lanes()]
+
+
 def nozzle_section(report, checked):
     """Markdown: what the 0.4 mm nozzle leaves unprinted on the PLA plates."""
-    rows, worst = [], 0.0
+    rows, worst, bridged = [], 0.0, []
+    zb = bridge_layers() if PD_MOUNT == "kit" else []
     for plate, items in checked:
         by = {}
         for part, z, area, kind in items:
             if kind == "surface":
                 by.setdefault(part, []).append((z, area))
         for part, v in sorted(by.items()):
+            at_bridge = lambda z: part.startswith("lid") and any(abs(z - b) <= 0.25 for b in zb)
+            br = [(z, a) for z, a in v if at_bridge(z)]
+            v = [(z, a) for z, a in v if not at_bridge(z)]
+            if br:
+                bridged += br
+                zs = sorted({z for z, _ in br})
+                rows.append(f"| `{plate}` | {part} | {len(br)} strip(s), up to {max(a for _, a in br):.2f} mm\u00b2, in "
+                            f"{len(zs)} layer(s) (z {', '.join(format(z, 'g') for z in zs)} mm on the bed): the layers that "
+                            f"close the openings in the left end wall |")
+            if not v:
+                continue
             worst = max(worst, max(a for _, a in v))
             zs = sorted({z for z, _ in v})
             rows.append(f"| `{plate}` | {part} | {len(v)} spot(s), up to {max(a for _, a in v):.2f} mm\u00b2, "
                         f"in {len(zs)} layer(s) (z {zs[0]:g}{'' if len(zs) == 1 else '..' + format(zs[-1], 'g')} mm on the bed) |")
     gaps = sum(1 for _, items in checked for it in items if it[3] == "gap" and it[2] >= 0.15)
-    report["nozzle_check"] = dict(worst_spot_mm2=worst, wall_gaps=gaps)
+    report["nozzle_check"] = dict(worst_spot_mm2=worst, wall_gaps=gaps, end_wall_bridge_strips_mm2=max((a for _, a in bridged), default=0.0))
     return ["## Does the 0.4 mm nozzle print everything?", "",
             "Each sliced plate (0.4 mm nozzle, 0.2 mm layers, Arachne walls) compared with the model, layer by layer: the "
             "outer 0.3 mm of every section has to be covered by an extrusion (else a feature is too small for the "
@@ -271,6 +295,10 @@ def nozzle_section(report, checked):
             "(the snap's 1.1 mm flex zone, its 1.0 mm lip, the 1.2 mm ribs).", "",
             "| Plate | Part | Surface left unprinted |", "| --- | --- | --- |"] + (rows or ["| all | - | nothing |"]) + ["",
             f"Largest spot: {worst:.2f} mm\u00b2 in a single 0.2 mm layer; gaps inside thin walls: {gaps}. "
+            + (f"The strips at the end-wall openings (up to {max(a for _, a in bridged):.1f} mm\u00b2): the layer that "
+               "closes an opening is a bridge across it, and the slicer lays it inside the 2 mm wall, leaving the outer "
+               "0.3 mm of both faces to the layer above; at worst a faint line on the lid's end face along the opening's "
+               "edge (cosmetic). " if bridged else "")
             + ("Nothing a part depends on: the hinge covers' crush ribs start 0.25 mm high, under what the nozzle adds "
                "to a wall, so the lowest of the four layers they span is left out and the upper three print; the rest are "
                "specks where a rounded edge or the tray's sloping rim runs out in one layer." if worst < 0.6 and gaps == 0 else

@@ -23,7 +23,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 CAD = os.path.join(HERE, "..", "cad")
 OUT = os.path.join(CAD, "out")
 sys.path.insert(0, os.path.join(CAD, "src"))
-from params import SPLICE, SPLIT_X_LID, SPLIT_X_PANEL, SPLIT_X_TRAY, TRAY_FLOOR  # noqa: E402
+from params import SPLICE, SPLIT_X_LID, SPLIT_X_PANEL, SPLIT_X_TRAY, TRAY_FLOOR, piece_names  # noqa: E402
 
 A_C, A_E = "#9fb3d9", "#33508f"
 B_C, B_E = "#d9d9d9", "#777777"
@@ -79,9 +79,11 @@ def plan_view(ax, kind, X, a, b, rot=None):
             add_polygon(ax, poly, P_C, P_E, lw=1.0, z=3)
     ax.axvline(X, color=INK, lw=0.8, ls=(0, (4, 3)), zorder=4)
     g = SPLICE[kind]
-    ax.text(X + g["x0"] - 1.0, -56.0, "A", fontsize=12, color=A_E, ha="right", weight="bold")
-    ax.text(X + g["x1"] + 1.0, -56.0, "B", fontsize=12, color="#555", ha="left", weight="bold")
-    ax.set_xlim(-103.0, -55.0)
+    end, main = ("left", "right") if X < 0 else ("right", "left")
+    for label, side, c in (("A", end, A_E), ("B", main, "#555")):     # A = the end piece, on the side of its cut
+        x = X + g["x0"] - 1.0 if side == "left" else X + g["x1"] + 1.0
+        ax.text(x, -56.0, label, fontsize=12, color=c, ha="right" if side == "left" else "left", weight="bold")
+    ax.set_xlim(*((-103.0, -55.0) if X < 0 else (55.0, 103.0)))
     ax.set_ylim(-60.0, 58.0)
     ax.set_aspect("equal")
     ax.axis("off")
@@ -90,7 +92,7 @@ def plan_view(ax, kind, X, a, b, rot=None):
 def seam_section(ax):
     y = 12.5                                     # a section across the tray's seam
     xz = np.array([[1, 0, 0, 0], [0, 0, 1, 0], [0, -1, 0, 0], [0, 0, 0, 1]], float)
-    a, b = load("tray_A_left.stl"), load("tray_B_main.stl")
+    a, b = (load(f"{n}.stl") for n in piece_names("tray"))
     plate = trimesh.load(os.path.join(OUT, "split", "splice", "tray_splice_1.stl"))
     for mesh, fc, ec, z in ((a, A_C, A_E, 1), (b, B_C, B_E, 1), (plate, P_C, P_E, 3)):
         for poly in section(mesh, [0, y, 0], [0, 1, 0], xz):
@@ -124,11 +126,12 @@ def main(out):
              ("panel", SPLIT_X_PANEL, "化粧パネル（裏。蓋の中に隠れる）", None))
     for i, (kind, X, title, r) in enumerate(views):
         ax = fig.add_subplot(gs[0, i])
-        plan_view(ax, kind, X, load(f"{kind}_A_left.stl"), load(f"{kind}_B_main.stl"), r)
+        plan_view(ax, kind, X, *(load(f"{n}.stl") for n in piece_names(kind)), r)
         n = len(SPLICE[kind]["y"])
         ax.set_title(f"{title}\n継ぎ板 {n} 枚", fontsize=11.5, color=INK, pad=6)
     seam_section(fig.add_subplot(gs[1, :]))
-    fig.suptitle("分割版（A1 mini）の継ぎ板（赤）の位置：どれも左端の継ぎ目のまわりを、閉じた状態の向きで上から見て、継ぎ板の深さで切った形",
+    sides = "どれも左端" if max(SPLIT_X_LID, SPLIT_X_PANEL, SPLIT_X_TRAY) < 0 else "トレイは左端、蓋と化粧パネルは右端"
+    fig.suptitle(f"分割版（A1 mini）の継ぎ板（赤）の位置：{sides}の継ぎ目のまわりを、閉じた状態の向きで上から見て、継ぎ板の深さで切った形",
                  fontsize=12.5, color=INK)
     fig.tight_layout(rect=(0, 0, 1, 0.96))
     fig.savefig(out, dpi=150, facecolor="white", metadata={"Software": None})

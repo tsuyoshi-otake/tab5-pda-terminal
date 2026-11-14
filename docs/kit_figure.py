@@ -1,5 +1,5 @@
 """Draw docs/images/kit_mount.png: how the M5Stack Tab5 sits in the lid. Left: the bezel panel as you see it
-with the lid open (front edge up), with the finger slots, the screws and where the USB-C goes in. Right: a section
+with the lid open (front edge up), with the finger slots, the screws and the port bay (where the plugs go in). Right: a section
 through the closed case (lid shell, kit, panel, tray). Cut from the built STLs.
 
 Usage: python3 docs/kit_figure.py [out.png]   (needs matplotlib and a Japanese font such as Noto Sans CJK JP)
@@ -93,21 +93,35 @@ def inner_view(ax, lid, panel, kit):
         ax.add_patch(Circle((x, -y), 1.6, fc="white", ec=INK, lw=0.8, zorder=5))
     for x, y in B.PANEL_PILLARS:                              # behind the panel: where it rests
         ax.add_patch(Circle((x, -y), B.PANEL_BOSS_R, fc="none", ec="#8a8478", lw=0.9, ls=(0, (2, 2)), zorder=5))
-    px, py = B.PANEL_PILLARS[2]
-    note(ax, (px + 2.0, -py - 2.5), "点線：ねじのない柱（裏でパネルを受ける）", (20.0, -61.0), fs=9.5)
+    px, py = B.PANEL_PILLARS[0]
+    note(ax, (px - 1.0, -py - 2.8), "点線：ねじのない柱（パネルの裏を受ける）", (20.0, -61.0), fs=9.5)
     note(ax, (B.PANEL_SCREWS[1][0] - 1.5, -B.PANEL_SCREWS[1][1] + 1.0), f"M2×8 皿タッピングねじ（{len(B.PANEL_SCREWS)} 本）", (60.0, 57.0))
     cx, cy, _ = B.KIT_CAMERA
     note(ax, (B.KIT_CX + cx, -cy + 3.0), "カメラの穴", (70.0, 20.0), fs=9.5)
     mx, my = B.KIT_MICS[0]
     note(ax, (B.KIT_CX + mx, -my + 1.0), "マイクの穴（2 か所）", (-40.0, 57.0), fs=9.5)
-    note(ax, (B.KIT_CX - B.KIT_L / 2 - 2.5, -sum(B.KIT_PWR_CAP_Y) / 2), "電源ボタン（Tab5 の左の縁）を\n横から押す切り欠き", (-58.0, -61.0), fs=9.5)
-    ax.add_patch(FancyArrowPatch((-112.0, -B.KIT_USB_Y), (-101.5, -B.KIT_USB_Y), arrowstyle="-|>", mutation_scale=12,
-                                 color=RED, lw=1.4, zorder=8))
-    ax.text(-113.0, 52.0, "USB-C：左端の穴から挿す\n（切り欠きから見ながら端子まで）", fontsize=10, color=RED, va="bottom")
+    note(ax, (B.KIT_CX - B.KIT_L / 2 - 2.5, -sum(B.KIT_PWR_CAP_Y) / 2), "電源ボタン（Tab5 の左の縁）を\n横から押す切り欠き", (-50.0, -61.0), fs=9.5)
+    if B.PORT_BAY:      # the ports on the Tab5's left edge, seen through the port bay, and the plugs coming in
+        label = {"usb_a": "USB-A", "usb_c": "USB-C", "jack": "イヤホン", "grove": "Grove"}
+        xe = B.KIT_FACE_X
+        for p in B.KIT_PORTS:
+            y, w = -p["y"], p["plug"][0] * 0.6
+            ax.plot([xe - 0.8, xe - 0.8], [y - w / 2, y + w / 2], color=INK, lw=3.0, solid_capstyle="butt", zorder=6)
+            ax.text(xe - 3.0, y, label[p["key"]], fontsize=9, color=INK, ha="right", va="center", zorder=7)
+            ax.add_patch(FancyArrowPatch((-112.0, y), (-101.5, y), arrowstyle="-|>", mutation_scale=10,
+                                         color=RED, lw=1.2, zorder=8))
+        ax.text(-113.0, 49.0, "左端の穴からプラグを入れ、\n切り欠き（ポートベイ）に指を入れて\n端子まで押し込む", fontsize=9.5,
+                color=RED, va="bottom")
+        ya, yb = B.PORT_BAY["y"]
+        note(ax, (-94.5, -yb + 4.5), "ポートベイ\n（パネルの切り欠き）", (-112.0, -61.0), fs=9.5)
+    else:
+        ax.add_patch(FancyArrowPatch((-112.0, -B.KIT_USB_Y), (-101.5, -B.KIT_USB_Y), arrowstyle="-|>", mutation_scale=12,
+                                     color=RED, lw=1.4, zorder=8))
+        ax.text(-113.0, 52.0, "USB-C：左端の穴から挿す\n（切り欠きから見ながら端子まで）", fontsize=10, color=RED, va="bottom")
     if B.PANEL_USB_SLOT:
         note(ax, (-82.0, -B.KIT_USB_Y - B.PANEL_USB_SLOT["half"] + 1.0), "USB-C プラグの切り欠き", (-112.0, -57.0), fs=9.5)
-    ax.text(75.0, -63.0, "↓ ヒンジ側", fontsize=9.5, color="#666")
-    finish(ax, (-114, 104), (-67, 62), "① 化粧パネル（開いて画面側から見たところ）")
+    ax.text(103.0, -70.0, "↓ ヒンジ側", fontsize=9.5, color="#666", ha="right")
+    finish(ax, (-114, 104), (-73, 62), "① 化粧パネル（開いて画面側から見たところ）")
 
 
 def section_view(ax, lid, panel, tray, kit):

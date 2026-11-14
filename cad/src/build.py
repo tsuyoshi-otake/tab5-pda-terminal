@@ -883,9 +883,14 @@ def kit_lid_top():
     """Top plane z = a + b * y, as low as possible: it passes through what the hinge needs at the back face (leaf +
     cover rim + chamfer) and through the most demanding of the kit pocket and the USB-C channel."""
     z_back = Z_PART + HINGE_WIDTH / 2 + HINGE_CLR + COVER_TOP_RIM + LID_CHAMFER
-    ch = KIT_Z0 + USB_CH["h"] + (USB_CEIL if SHELL else SKIN)
-    need = [(KIT_Y0, KIT_Z1 + SKIN, "kit pocket (front edge)"), (KIT_Y1, KIT_Z1 + SKIN, "kit pocket (back edge)"),
-            (KIT_USB_Y - USB_CH["w"] / 2, ch, "USB-C channel"), (KIT_USB_Y + USB_CH["w"] / 2, ch, "USB-C channel")]
+    need = [(KIT_Y0, KIT_Z1 + SKIN, "kit pocket (front edge)"), (KIT_Y1, KIT_Z1 + SKIN, "kit pocket (back edge)")]
+    if SHELL and PORT_BAY:      # each plug in the port bay, under a ceiling thinned to the bay's skin at the most
+        g = PORT_BAY
+        need += [(p["y"] + s * p["plug"][0] / 2, KIT_Z0 + p["d"] + p["plug"][1] / 2 + g["ceil_clr"] + g["skin"],
+                  f"{p['name']} plug") for p in KIT_PORTS for s in (-1, 1)]
+    else:
+        ch = KIT_Z0 + USB_CH["h"] + (USB_CEIL if SHELL else SKIN)
+        need += [(KIT_USB_Y - USB_CH["w"] / 2, ch, "USB-C channel"), (KIT_USB_Y + USB_CH["w"] / 2, ch, "USB-C channel")]
     z_need, why = max((z, w) for _, z, w in need)
     if z_need >= z_back:                       # a thick device: the top is flat, as high as the device needs
         return z_need, 0.0, why + " (flat: higher than the hinge needs at the back)"
@@ -898,6 +903,107 @@ LID_TOP = kit_lid_top()
 
 def top_z(y):
     return LID_TOP[0] + LID_TOP[1] * y
+
+
+# ------------------------------------------------------------------ port bay (shell lid): every port on the Tab5's left edge
+KIT_FACE_X = KIT_CX - KIT_L / 2           # the Tab5's left face (its port edge) in the lid frame
+LID_END_X = -101.0                         # the lid's left end face (inner face at LID_END_X + SHELL_WALL)
+CEIL_D = KIT_T + KIT_GAP                   # the ceiling's inner face as a depth behind the screen face
+
+
+def port_lanes():
+    """The end-wall openings for the plugs of KIT_PORTS, y-sorted and merged where closer than PORT_BAY['merge']:
+    [dict(y0, y1, d0, d1, keys, relieved)], d = depth behind the screen face. relieved: some plug in the lane comes
+    within ceil_clr of the ceiling, so the ceiling over the lane (end wall to the Tab5) is thinned to PORT_BAY['skin']."""
+    g = PORT_BAY
+    lanes = []
+    for p in KIT_PORTS:
+        w, h, _ = p["plug"]
+        lanes.append(dict(y0=p["y"] - w / 2 - g["clr"], y1=p["y"] + w / 2 + g["clr"], d0=p["d"] - h / 2 - g["clr"],
+                          d1=p["d"] + h / 2 + g["clr"], keys=[p["key"]], relieved=p["d"] + h / 2 + g["ceil_clr"] > CEIL_D))
+    lanes.sort(key=lambda l: l["y0"])
+    out = [lanes[0]]
+    for l in lanes[1:]:
+        o = out[-1]
+        if l["y0"] - o["y1"] < g["merge"]:
+            o.update(y1=max(o["y1"], l["y1"]), d0=min(o["d0"], l["d0"]), d1=max(o["d1"], l["d1"]),
+                     keys=o["keys"] + l["keys"], relieved=o["relieved"] or l["relieved"])
+        else:
+            out.append(l)
+    for o in out:          # the opening stops at the ceiling's inner face (thinned or not)
+        o["d1"] = min(o["d1"], min(top_z(o["y0"]), top_z(o["y1"])) - KIT_Z0 - (g["skin"] if o["relieved"] else SHELL_CEIL))
+    return out
+
+
+def port_bay_cuts():
+    """The lid's side of the port bay: the openings in the left end wall, everything below the ceiling cleared from the
+    end wall to the Tab5 across the bay, and the ceiling thinned over the lanes that need it."""
+    g, (a, b) = PORT_BAY, LID_TOP[:2]
+    xi = LID_END_X + SHELL_WALL
+    cuts = [box(LID_END_X - 1.0, xi + 0.5, l["y0"], l["y1"], KIT_Z0 + l["d0"], KIT_Z0 + l["d1"]) for l in port_lanes()]
+    cuts.append(box(xi, KIT_FACE_X + 1.0, *g["y"], -10.0, 60.0) ^ half_space(a - SHELL_CEIL, b, False))
+    cuts += [box(xi - 0.01, KIT_FACE_X + 1.0, l["y0"], l["y1"], -10.0, 60.0) ^ half_space(a - g["skin"], b, False)
+             for l in port_lanes() if l["relieved"]]
+    return cuts
+
+
+def port_bay_panel_cut(z0, z1):
+    """The bezel panel's side of the port bay: open from a frame along its left edge to the rim round the Tab5."""
+    g = PORT_BAY
+    xa, xb = LID_END_X + SHELL_WALL + PANEL_CLR + g["frame"], KIT_X0 - PANEL_RIM["w"] + 0.05   # (not flush with the rim's face)
+    ya, yb = g["y"]
+    return prism_z(rrect((xa + xb) / 2, (ya + yb) / 2, xb - xa, yb - ya, g["r"]), z0, z1)
+
+
+def port_plugs(cable=True):
+    """{key: plug} for the checks: each plug of KIT_PORTS in its port, its body from the Tab5's face outward (a cylinder
+    for a round one), and a Ø4 cable from its tail out past the end wall."""
+    out = {}
+    for p in KIT_PORTS:
+        w, h, L = p["plug"]
+        zc = KIT_Z0 + p["d"]
+        body = (cyl_x(w / 2, KIT_FACE_X - L, KIT_FACE_X, p["y"], zc) if p.get("round") else
+                box(KIT_FACE_X - L, KIT_FACE_X, p["y"] - w / 2, p["y"] + w / 2, zc - h / 2, zc + h / 2))
+        if cable:
+            body = body + cyl_x(2.0, LID_END_X - 6.0, KIT_FACE_X - L + 0.5, p["y"], zc)
+        out[p["key"]] = body
+    return out
+
+
+def port_bay_log(plugs, lid, panel):
+    """Log the port bay and check that every plug (with its cable) clears the lid, the panel and the other plugs."""
+    g = PORT_BAY
+    xi = LID_END_X + SHELL_WALL
+    log(f"  port bay: the space between the Tab5's left face (x {KIT_FACE_X:.1f}) and the lid's end wall (inner face x "
+        f"{xi:.1f}), {KIT_FACE_X - xi:.1f} mm, open through the panel over y {g['y'][0]:g}..{g['y'][1]:g} (frame "
+        f"{g['frame']:g} mm along the panel's left edge, the rim round the Tab5 kept); nothing stands in it")
+    for l in port_lanes():
+        names = " + ".join(next(p["name"] for p in KIT_PORTS if p["key"] == k) for k in l["keys"])
+        log(f"    end-wall opening for {names}: y {l['y0']:.2f}..{l['y1']:.2f}, {l['d0']:.2f}..{l['d1']:.2f} mm behind the "
+            f"screen face ({l['y1'] - l['y0']:.1f} x {l['d1'] - l['d0']:.1f} mm)"
+            + (f"; ceiling over the lane thinned to {g['skin']:g} mm (from inside)" if l["relieved"] else ""))
+    lanes = port_lanes()
+    for a, b in zip(lanes, lanes[1:]):
+        log(f"    post between openings: {b['y0'] - a['y1']:.2f} mm (y {a['y1']:.2f}..{b['y0']:.2f})")
+    for p in KIT_PORTS:
+        w, h, L = p["plug"]
+        pl = port_plugs(cable=False)[p["key"]]
+        bb = pl.bounding_box()
+        col = box(bb[0] + 0.5, bb[3] - 0.5, p["y"] - 0.3, p["y"] + 0.3, bb[5], 60.0) ^ lid    # the ceiling above it
+        gap = col.bounding_box()[2] - bb[5] if not col.is_empty() else float("nan")
+        log(f"    {p['name']}: y {p['y']:g}, {p['d']:.2f} behind the screen face; room for a plug "
+            f"{'Ø' + format(w, 'g') if p.get('round') else format(w, 'g') + ' x ' + format(h, 'g')} mm, {L:g} long out of "
+            f"the Tab5 ({gap:.2f} mm under the ceiling), cable out through the end wall")
+        for part, name in ((lid, "lid"), (panel, "panel")):
+            v = (plugs[p["key"]] ^ part).volume()
+            assert v < 0.01, (p["key"], name, v)
+    keys = list(plugs)
+    for i, a in enumerate(keys):
+        for b in keys[i + 1:]:
+            v = (port_plugs(cable=False)[a] ^ port_plugs(cable=False)[b]).volume()
+            assert v < 0.01, (a, b, v)
+    ys = sorted((p["y"] - p["plug"][0] / 2, p["y"] + p["plug"][0] / 2) for p in KIT_PORTS)
+    log(f"    all four plugged at once: {min(b[0] - a[1] for a, b in zip(ys, ys[1:])):.2f} mm between the nearest two plugs")
 
 
 def lid_plan_pieces():
@@ -1059,6 +1165,8 @@ def usb_end_cuts(usb):
     """Left end wall of the shell lid. "direct": an opening for a straight plug in line with the kit's port.
     A number: opening (+ M3 holes that far apart, 0 = none) for a screw-ear panel-mount female at y = USB_PM_Y_KIT."""
     xo = -101.0
+    if usb == "direct" and PORT_BAY:
+        return port_bay_cuts()
     if usb == "direct":
         w = USB_CH["w"]
         return [box(xo - 1.0, xo + SHELL_WALL + 0.5, KIT_USB_Y - w / 2, KIT_USB_Y + w / 2, KIT_Z0 + USB_CH.get("z0", -0.01),
@@ -1146,7 +1254,10 @@ def panel_boss_keepout():
     g = SPLICE["lid"]
     out = [(KIT_X0 - w, KIT_X1 + w, KIT_Y0 - w, KIT_Y1 + w)]
     out += [(SPLIT_X_LID + g["x0"] - c, SPLIT_X_LID + g["x1"] + c, ya - c, yb + c) for ya, yb in g["y"]]
-    out.append((-BIG, KIT_X0, KIT_USB_Y - USB_CH["w"] / 2 - 0.5, KIT_USB_Y + USB_CH["w"] / 2 + 0.5))
+    if PORT_BAY:
+        out.append((-BIG, KIT_X0, PORT_BAY["y"][0] - 0.5, PORT_BAY["y"][1] + 0.5))
+    else:
+        out.append((-BIG, KIT_X0, KIT_USB_Y - USB_CH["w"] / 2 - 0.5, KIT_USB_Y + USB_CH["w"] / 2 + 0.5))
     return out
 
 
@@ -1211,11 +1322,12 @@ def build_kit_lid_shell(usb="direct", blocks=True):
     adds = hinge_mounts(True)                                                                        # hinges
     adds += [cyl_z(PANEL_BOSS_R, PANEL_Z1, 60.0, x, y) for x, y in PANEL_SCREWS + PANEL_PILLARS]     # panel bosses, pillars
     adds += [box(x - 0.8, x + 0.8, -30.0, 30.0, KIT_Z0 + KIT_T + 0.1, 60.0) for x in KIT_RIBS_X]      # on the kit's back
-    gx0 = USB_GUIDE_X[0] if usb == "direct" else SPLIT_X_LID       # guides stay in lid B for a panel-mount lid A
-    w = USB_CH["w"] / 2 + 0.6
-    for sy in (-1.0, 1.0):
-        y0, y1 = sorted((KIT_USB_Y + sy * w, KIT_USB_Y + sy * (w + RIB_T)))
-        adds.append(box(gx0, KIT_X0 - PANEL_RIM["w"] - 0.3, y0, y1, PANEL_Z1 + 0.1, 60.0))   # stop short of the rim
+    if USB_GUIDE_X:
+        gx0 = USB_GUIDE_X[0] if usb == "direct" else SPLIT_X_LID       # guides stay in lid B for a panel-mount lid A
+        w = USB_CH["w"] / 2 + 0.6
+        for sy in (-1.0, 1.0):
+            y0, y1 = sorted((KIT_USB_Y + sy * w, KIT_USB_Y + sy * (w + RIB_T)))
+            adds.append(box(gx0, KIT_X0 - PANEL_RIM["w"] - 0.3, y0, y1, PANEL_Z1 + 0.1, 60.0))   # stop short of the rim
     g = SPLIT_BLOCK
     adds += [box(SPLIT_X_LID - g["dx"], SPLIT_X_LID + g["dx"], y - g["dy"], y + g["dy"], -10.0, 60.0)
              ^ half_space(top[0] - g["h"], top[1]) for y in DOVETAIL_Y_KIT] if (blocks and g) else []
@@ -1230,8 +1342,9 @@ def build_kit_lid_shell(usb="direct", blocks=True):
     if latch_stops()[0]:
         L = L + union(latch_stops()[0])
     cuts = usb_end_cuts(usb) + hinge_pocket_cuts() + hinge_pilots(True) + [back_edge_relief(True)]
-    cuts.append(box(-101.0 + SHELL_WALL, KIT_X0 + KIT_FIT + 1.0, KIT_USB_Y - USB_CH["w"] / 2, KIT_USB_Y + USB_CH["w"] / 2,
-                    -10.0, 60.0) ^ half_space(top[0] - USB_CEIL, top[1], False))   # thinner ceiling over the plug path
+    if not PORT_BAY:
+        cuts.append(box(-101.0 + SHELL_WALL, KIT_X0 + KIT_FIT + 1.0, KIT_USB_Y - USB_CH["w"] / 2, KIT_USB_Y + USB_CH["w"] / 2,
+                        -10.0, 60.0) ^ half_space(top[0] - USB_CEIL, top[1], False))   # thinner ceiling over the plug path
     cuts += [cyl_z(SCREW_PILOT_D / 2, PANEL_Z1 - 0.1, PANEL_Z1 + TAP_SCREW_LEN - PANEL_T + 0.5, x, y) for x, y in PANEL_SCREWS]
     cuts.append(panel_snaps(groove=True))                                    # grooves for the panel's snap bumps
     cuts.append(parting_relief())                                            # the rims do not meet near the hinges
@@ -1293,7 +1406,10 @@ def build_kit_panel():
     xe = KIT_CX - KIT_L / 2
     xa, xb, ya, yb = xe - g["out"], xe + 0.5, KIT_PWR_CAP_Y[0] - g["end"], KIT_PWR_CAP_Y[1] + g["end"]
     cuts.append(prism_z(rrect((xa + xb) / 2, (ya + yb) / 2, xb - xa, yb - ya, g["r"]), z0, z1))
-    cuts.append(box(KIT_X0 - r["w"] - 1.0, KIT_X0 + 0.01, KIT_USB_Y - 6.6, KIT_USB_Y + 6.6, PANEL_Z1, z1))  # plug
+    if PORT_BAY:        # open over all the ports on the Tab5's left edge (the rim round the Tab5 stays)
+        cuts.append(port_bay_panel_cut(z0, z1))
+    else:
+        cuts.append(box(KIT_X0 - r["w"] - 1.0, KIT_X0 + 0.01, KIT_USB_Y - 6.6, KIT_USB_Y + 6.6, PANEL_Z1, z1))  # plug
     if PANEL_USB_SLOT:  # open over the plug path, from a frame at the panel's left edge to the kit's end
         u = PANEL_USB_SLOT
         xa, xb = -101.0 + SHELL_WALL + PANEL_CLR + u["frame"], KIT_X0
@@ -1495,7 +1611,8 @@ def main_kit():
     lid = build_kit_lid()
     tray = build_kit_tray() if SHELL else build_tray()
     panel = build_kit_panel() if SHELL else None
-    kit, plug = kit_envelope(), kit_plug_envelope()
+    kit = kit_envelope()
+    plugs = port_plugs() if SHELL and PORT_BAY else {"usb_c": kit_plug_envelope()}
     log("== exports (bounding boxes are axis-aligned in the assembly frame)")
     export(lid, f"{OUT_DIR}/display_lid_usbc.stl")
     export(tray, f"{OUT_DIR}/keyboard_tray.stl")
@@ -1513,23 +1630,25 @@ def main_kit():
         kz0 = top_z(max(DOVETAIL_Y_KIT) + SPLIT_BLOCK["dy"]) - SPLIT_BLOCK["h"] + 0.3
     else:               # keys through the plain ceiling, from its inner face (which slopes with the top)
         kz0 = lambda y: top_z(y - DOVETAIL["head"] / 2) - SHELL_CEIL - 0.01
-    la, lb = split_kit(lid, SPLIT_X_LID, DOVETAIL_Y_KIT, kz0, 60.0)
-    ta, tb = split_kit(tray, SPLIT_X_TRAY, DOVETAIL_Y, 0.0, TRAY_FLOOR)
+    # (end piece, main piece) of each: the end piece is the short one, on the side of its cut
+    end_main = lambda pair, X: pair if X < 0 else pair[::-1]
+    la, lb = end_main(split_kit(lid, SPLIT_X_LID, DOVETAIL_Y_KIT, kz0, 60.0), SPLIT_X_LID)
+    ta, tb = end_main(split_kit(tray, SPLIT_X_TRAY, DOVETAIL_Y, 0.0, TRAY_FLOOR), SPLIT_X_TRAY)
     splices = {"lid": splice_parts("lid", SPLIT_X_LID), "tray": splice_parts("tray", SPLIT_X_TRAY)} if SPLICE else {}
     pocket = lambda kind: union(p for _, _, p in splices[kind]) if kind in splices else M()
     la, lb, ta, tb = la - pocket("lid"), lb - pocket("lid"), ta - pocket("tray"), tb - pocket("tray")
-    pieces = {"lid_A_left": la, "lid_B_main": lb, "tray_A_left": ta, "tray_B_main": tb}
+    pieces = dict(zip(piece_names("lid") + piece_names("tray"), (la, lb, ta, tb)))
     if SHELL:
-        pa, pb = split_kit(panel, SPLIT_X_PANEL, PANEL_DOVETAIL_Y, PANEL_Z0, PANEL_Z1, PANEL_DOVETAIL)
+        pa, pb = end_main(split_kit(panel, SPLIT_X_PANEL, PANEL_DOVETAIL_Y, PANEL_Z0, PANEL_Z1, PANEL_DOVETAIL), SPLIT_X_PANEL)
         if SPLICE:
             splices["panel"] = splice_parts("panel", SPLIT_X_PANEL)
             pa, pb = pa - pocket("panel"), pb - pocket("panel")
-        pieces.update(panel_A_left=pa, panel_B_main=pb)
+        pieces.update(zip(piece_names("panel"), (pa, pb)))
     for k, v in pieces.items():
         tm = export(v, f"{SPLIT_DIR}/{k}.stl")
         assert max(tm.extents) <= MAX_PIECE, (k, tm.extents)
     if SHELL:   # no part of a panel piece may hang on a web narrower than 2 mm (eroded by 1 mm it must stay in one piece)
-        for k in ("panel_A_left", "panel_B_main"):
+        for k in piece_names("panel"):
             n = len(pieces[k].slice(PANEL_Z0 + 0.5).offset(-1.0, m3.JoinType.Miter).decompose())
             log(f"  {k}: eroded by 1 mm (visible half) -> {n} piece(s)")
             assert n == 1, (k, "a web narrower than 2 mm", n)
@@ -1547,6 +1666,7 @@ def main_kit():
         if USB_PM_KIT_VARIANTS:
             log(f"== lid A for a screw-ear panel-mount female USB-C (swap only lid A; room inside the end wall {usb_pm_room():.1f} mm)")
         for sp in USB_PM_KIT_VARIANTS:
+            assert SPLIT_X_LID < 0, "panel-mount lid A variants need the lid cut at its left end"
             va, vb = split_kit(build_kit_lid_shell(usb=sp), SPLIT_X_LID, DOVETAIL_Y_KIT, kz0, 60.0)
             va, vb = va - pocket("lid"), vb - pocket("lid")
             assert abs(vb.volume() - lb.volume()) < 0.01, ("lid B must not depend on the USB-C end", sp)
@@ -1580,7 +1700,11 @@ def main_kit():
 
     log("== interference checks (closed)")
     interference(kit, lid, "kit (case + caps) vs lid")
-    interference(plug, lid, "USB-C plug in the kit's port vs lid")
+    for k, pl in plugs.items():
+        interference(pl, lid, f"{k} plug (+ cable) in the kit's port vs lid")
+        interference(pl, tray, f"{k} plug (+ cable) vs tray")
+    if SHELL and PORT_BAY:
+        port_bay_log(plugs, lid, panel)
     interference(lid, tray, "lid vs tray")
     if PART_RELIEF:
         p = PART_RELIEF
@@ -1615,7 +1739,7 @@ def main_kit():
         assert (kb ^ tray).volume() < 1e-3 and (tray ^ lid).volume() < 1e-3
     if SHELL:
         interference(kit, panel, "kit vs bezel panel"); interference(panel, lid, "bezel panel vs lid")
-        interference(panel, tray, "bezel panel vs tray"); interference(plug, panel, "USB-C plug vs bezel panel")
+        interference(panel, tray, "bezel panel vs tray"); [interference(pl, panel, f"{k} plug vs bezel panel") for k, pl in plugs.items()]
         interference(kb, panel, "keyboard space vs bezel panel"); interference(pa, pb, f"panel A vs B ({SPLIT_JOINT})")
         for sp, full in usb_variants.items():
             env = usb_pm_envelope_kit(sp)
@@ -1664,8 +1788,12 @@ def main_kit():
                 rs = [f"{names[d]} {k} {r:.1f}" for bx, by, d, k, r in PANEL_RIB_INFO if (bx, by) == (x, y)]
                 log(f"    ({x:g}, {y:g}): " + ", ".join(rs))
     skin = min(top_z(y) - KIT_Z1 for y in (KIT_Y0, KIT_Y1))
-    log(f"  skin over the kit {skin:.2f}..{max(top_z(y) - KIT_Z1 for y in (KIT_Y0, KIT_Y1)):.2f} mm, over the USB-C channel "
-        f"{min(top_z(KIT_USB_Y + s * USB_CH['w'] / 2) for s in (-1, 1)) - KIT_Z0 - USB_CH['h']:.2f} mm")
+    if SHELL and PORT_BAY:
+        log(f"  skin over the kit {skin:.2f}..{max(top_z(y) - KIT_Z1 for y in (KIT_Y0, KIT_Y1)):.2f} mm, over the port bay "
+            f"{PORT_BAY['skin']:g} mm where a lane is thinned, {SHELL_CEIL:g} elsewhere")
+    else:
+        log(f"  skin over the kit {skin:.2f}..{max(top_z(y) - KIT_Z1 for y in (KIT_Y0, KIT_Y1)):.2f} mm, over the USB-C channel "
+            f"{min(top_z(KIT_USB_Y + s * USB_CH['w'] / 2) for s in (-1, 1)) - KIT_Z0 - USB_CH['h']:.2f} mm")
 
     log("== snap (latch): a lip on a thinned zone of the front wall, no slits")
     l, g = LATCH, LATCH["flex"]
