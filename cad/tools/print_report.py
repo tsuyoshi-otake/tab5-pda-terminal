@@ -77,12 +77,17 @@ if PD_MOUNT == "kit":
 LID_PARTS = [("lid_A_left", 1), ("lid_B_main", 1), ("panel_A_left", 1), ("panel_B_main", 1), ("paperdiy_strap", 1),
              ("key_pushrod_x2", 2), ("power_pushrod", 1), ("hinge_cover_lid_x2", 2), ("top_plate_blank", 1)]
 if PD_MOUNT == "kit":
-    LID_PARTS = [(n, 1) for n in piece_names("lid")] + [("hinge_cover_lid_x2", 2)]
+    LID_PARTS = [(n, 1) for n in piece_names("lid")]
     if os.path.exists(os.path.join(SPLIT_DIR, piece_names("panel")[1] + ".stl")):
         LID_PARTS += [(n, 1) for n in piece_names("panel")]
     if os.path.exists(os.path.join(OUT_DIR, "port_cover.stl")):
         LID_PARTS += [("port_cover", 1)]
-BASE_PARTS = [(n, 1) for n in piece_names("tray")] + [("hinge_cover_tray_x2", 2)]
+BASE_PARTS = [(n, 1) for n in piece_names("tray")]
+if PD_MOUNT == "kit":     # hinge covers, if the hinges have them
+    LID_PARTS += [("hinge_cover_lid_x2", 2)] if os.path.exists(os.path.join(OUT_DIR, "hinge_cover_lid_x2.stl")) else []
+    BASE_PARTS += [("hinge_cover_tray_x2", 2)] if os.path.exists(os.path.join(OUT_DIR, "hinge_cover_tray_x2.stl")) else []
+else:
+    BASE_PARTS += [("hinge_cover_tray_x2", 2)]
 
 
 def stl(name):

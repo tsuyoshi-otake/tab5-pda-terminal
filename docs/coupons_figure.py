@@ -123,8 +123,8 @@ def main(out):
     tx = fig.add_axes([0.51, 0.04, 0.48, 0.90])
     tx.axis("off")
     y = 0.97
-    tx.text(0.0, y, f"{min(cut)}〜{max(cut)} は本番の部品から同じ向きのまま切り出した小片で、完成品には使いません。\n"
-            f"{'・'.join(map(str, same))} は本番と同じ部品なので、合えば予備になります。",
+    tx.text(0.0, y, f"{min(cut)}〜{max(cut)} は本番の部品から同じ向きのまま切り出した小片で、完成品には使いません。"
+            + (f"\n{'・'.join(map(str, same))} は本番と同じ部品なので、合えば予備になります。" if same else ""),
             fontsize=10.5, color=INK, va="top", transform=tx.transAxes, linespacing=1.5)
     y -= 0.11
     for pair, check in CHECKS:

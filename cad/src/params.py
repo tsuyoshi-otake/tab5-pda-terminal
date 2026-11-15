@@ -155,15 +155,16 @@ KB_FACE_X, KB_FACE_Y = LID_INNER_X, LID_INNER_Y            # the faces toward th
 KB_PAD = dict(clr=0.15, w=6.0, z0=3.0, top_below_rim=1.0, lead=1.5, front_x=(-60.0, -22.0, 22.0, 60.0),
               back_x=(-60.0, -22.0, 22.0, 60.0), end_y=(-20.0, 8.0))
 LID_UNDER = (10.4417, 0.05376)  # [M] lid underside (parting) plane z = a + b * y, fitted to the original (resid < 0.001)
-# Relief at the hinge side: the hinge axis lies in the parting plane, 0.15 mm behind the back face, so the rims meet
-# 1.65 mm from it and the front edge is 60 times further out. Rims that touch there and come out 0.05 mm proud (top
-# surfaces of both prints do) hold the front edge 3 mm open once the hinge screws pull the leaves home. Seen on the built
+# Relief at the hinge side: the hinge axis lies in the parting plane just behind the back face (1.15 mm without covers,
+# 0.15 with them), so the rims meet 2.65 (1.65) mm from it and the front edge is 38 (60) times further out. Rims that
+# touch there and come out 0.05 mm proud (top surfaces of both prints do) hold the front edge 2 (3) mm open once the hinge
+# screws pull the leaves home. Seen on the built
 # PaperDIY version: with the screws tight the lid opened, with the screws loose it stayed shut. So the lid's underside leans
 # up from y0 to `back` at the back face: the lid lands on its front edge, and the rims near the hinges never meet.
 PART_RELIEF = dict(y0=-40.0, back=0.4) if PD_MOUNT == "kit" else None
 LID_SKIN = 1.2                # least skin over a pocket or channel
 LID_CHAMFER = 0.0 if PD_MOUNT == "kit" else 0.8   # top edge and seam chamfer (kit: none)
-COVER_TOP_RIM = 0.8           # lid hinge covers: rim above the leaf mortise (sides keep COVER_RIM)
+COVER_TOP_RIM = 0.8           # lid: wall above the leaf mortise (or the cover's rim there, with covers)
 KIT_NOTCH = dict(out=7.0, depth=5.6, end=1.5, r=2.0)   # finger notches at the caps: 7 mm out from the pocket, 5.6 deep
 USB_CH = dict(w=13.0, h=12.0, z0=4.4)  # channel for a straight USB-C plug (overmold ~12 x 6.5) from the left end to the
                                       # port: z0..h behind the screen face (the port is 8.2 behind it)
@@ -192,7 +193,7 @@ PORT_BAY = dict(slot=True, clr=0.5, merge=2.0, ceil_clr=0.2, skin=LID_SKIN, r=0.
 # ledge_t = PANEL_T)
 # reaches `ledge` mm into the opening as the ledge it rests on. A frame on its back (inside the ledge, down to `depth`
 # behind the Tab5's screen face, clear of the plugs) keeps it flat. Held by tapered crush ribs on the plate's edges,
-# like the hinge covers: clr at the back (the lead-in), clr + rib_h at the front (tight: lower rib_h, reprint the
+# as the hinge covers had: clr at the back (the lead-in), clr + rib_h at the front (tight: lower rib_h, reprint the
 # cover). It comes out with a fingernail in the chamfer round its face.
 PORT_COVER = dict(face=1.0, ledge_t=0.6, ledge=1.2, clr=0.2, rib_h=0.1, rib_r=0.9, ribs=(2, 4), chamfer=0.6,
                   frame_t=1.0, depth=2.0)
@@ -433,8 +434,10 @@ HINGE_MOUNT = "face"
 # lid's and tray's back edges would collide when opening). Under each screw hole a cone on the cover fills the leaf's
 # countersink, so the hinge's own M2x8 screws, countersunk in the cover, hold cover and leaf together: no glue.
 # Bare design: 1.0 mm covers glued on top of the back face (1.0 mm proud).
-HINGE_COVER = True
-COVER_FLUSH = PD_MOUNT == "kit"
+# No covers (dropped 2026-11-15): the leaves sit flush in a 2.05 mm mortise in the back face, the M2x8 heads in the
+# leaves' own countersinks, and the hinge axis 1.15 mm outside the back face. HINGE_COVER = True brings the covers back.
+HINGE_COVER = False
+COVER_FLUSH = PD_MOUNT == "kit" and HINGE_COVER
 COVER_SCREWED = COVER_FLUSH   # held by the hinge screws (bare design: glued)
 COVER_T = 1.0                 # plate thickness (kit: flush in the back face; bare: proud of it)
 COVER_RIM = 1.5               # overlap onto the case around the leaf mortise
@@ -495,7 +498,8 @@ HOUSING_HALF = 13.5           # housing half-length along x: cover 23.5 mm + 1.7
 HINGE_PAD = dict(boss_wall=1.6, skin=1.5)
 # kit: the lid's lower back edge and the tray's upper back edge (along the parting, at the hinge axis) are rounded with
 # this radius. With the axis only 0.15 mm outside the back face (flush covers), the square edges would rub as soon as
-# the real axis sits a little lower than the catalogue model suggests; the radius gives that room.
+# the real axis sits a little lower than the catalogue model suggests; the radius gives that room (without covers the
+# axis is 1.15 mm out, and the radius is kept).
 HINGE_EDGE_R = 1.5 if PD_MOUNT == "kit" else 0.0
 HOUSING_GUSSET = 5.5          # tapered rib each side of a housing (plan view 5.5 mm long, 6.5 mm deep at the housing)
 # triangular ribs (gussets) inside the lid between the long walls and the ceiling, 1.6 mm thick (4 lines);

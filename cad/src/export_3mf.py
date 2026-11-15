@@ -81,6 +81,12 @@ def S(name):
 (LA, LB), (TA, TB), (PA, PB) = piece_names("lid"), piece_names("tray"), piece_names("panel")   # (end piece, main piece)
 
 
+def covers(kind, names):
+    """The hinge covers of one kind (lid / tray) laid flat, one per name, if they are built (none without covers)."""
+    f = O(f"hinge_cover_{kind}_x2")
+    return [(n, part(f, LAY_FLAT_Y)) for n in names] if os.path.exists(f) else []
+
+
 def O(name):
     return os.path.join(OUT_DIR, f"{name}.stl")
 
@@ -99,6 +105,7 @@ def W(name):
 
 def rows_layout(rows, BED=BED):
     """rows: list of rows (front to back), each a list of (name, mesh). Returns [(name, mesh, (x, y))]."""
+    rows = [r for r in rows if r]                  # (a row can come out empty, e.g. without hinge covers)
     placed = []
     row_h = [max(m.extents[1] for _, m in r) for r in rows]
     total_h = sum(row_h) + GAP * (len(rows) - 1)
@@ -143,26 +150,22 @@ def plates():
 
     if KIT:
         return {
-            # test coupons: hinge seat (lid + tray), dovetail key (if the split has keys), snap tab + recess, one cover of each kind
+            # test coupons: hinge seat (lid + tray), dovetail key (if the split has keys), snap tab + recess, the lid's end
+            # wall with its port opening, one hinge cover of each kind (if the hinges have covers)
             "plate0_test_coupons.3mf": ("Test coupons (print first)", [
                 [coupon("coupon_hinge_tray"), coupon("coupon_hinge_lid"), coupon("coupon_latch_tray")],
                 ([coupon("coupon_dovetail_A"), coupon("coupon_dovetail_B")] if "coupon_dovetail_A" in csrc else [])
                 + [coupon("coupon_latch_lid")] + ([coupon("coupon_port_end")] if "coupon_port_end" in csrc else []),
-                [("hinge_cover_lid", part(O("hinge_cover_lid_x2"), LAY_FLAT_Y)),
-                 ("hinge_cover_tray", part(O("hinge_cover_tray_x2"), LAY_FLAT_Y))],
+                covers("lid", ["hinge_cover_lid"]) + covers("tray", ["hinge_cover_tray"]),
             ]),
             # navy: lid pieces, top face on the bed (tilted level); no supports needed
             "plate1_lid.3mf": ("Lid (A + B)", [
-                [(LA, part(S(LA), LAY_TOP, FLIP_X, ROT_Z90)),
-                 ("hinge_cover_lid_1", part(O("hinge_cover_lid_x2"), LAY_FLAT_Y)),
-                 ("hinge_cover_lid_2", part(O("hinge_cover_lid_x2"), LAY_FLAT_Y))],
+                [(LA, part(S(LA), LAY_TOP, FLIP_X, ROT_Z90))] + covers("lid", ["hinge_cover_lid_1", "hinge_cover_lid_2"]),
                 [(LB, part(S(LB), LAY_TOP, FLIP_X))],
             ] + splice_row("lid", LAY_TOP, FLIP_X)),
             # cream: keyboard tray pieces, floor on the bed
             "plate2_tray.3mf": ("Keyboard tray (A + B)", [
-                [(TA, part(S(TA), ROT_Z90)),
-                 ("hinge_cover_tray_1", part(O("hinge_cover_tray_x2"), LAY_FLAT_Y)),
-                 ("hinge_cover_tray_2", part(O("hinge_cover_tray_x2"), LAY_FLAT_Y))],
+                [(TA, part(S(TA), ROT_Z90))] + covers("tray", ["hinge_cover_tray_1", "hinge_cover_tray_2"]),
                 [(TB, part(S(TB)))],
             ] + splice_row("tray")),
         } | ({
@@ -199,13 +202,11 @@ def large_plates():
         return {}
     p = {
         "large/plate1_lid.3mf": ("Lid, one piece (bed 220 mm or more)", [
-            [("hinge_cover_lid_1", part(O("hinge_cover_lid_x2"), LAY_FLAT_Y)),
-             ("hinge_cover_lid_2", part(O("hinge_cover_lid_x2"), LAY_FLAT_Y))],
+            covers("lid", ["hinge_cover_lid_1", "hinge_cover_lid_2"]),
             [("lid", part(W("lid"), LAY_TOP, FLIP_X))],
         ]),
         "large/plate2_tray.3mf": ("Keyboard tray, one piece (bed 220 mm or more)", [
-            [("hinge_cover_tray_1", part(O("hinge_cover_tray_x2"), LAY_FLAT_Y)),
-             ("hinge_cover_tray_2", part(O("hinge_cover_tray_x2"), LAY_FLAT_Y))],
+            covers("tray", ["hinge_cover_tray_1", "hinge_cover_tray_2"]),
             [("tray", part(W("tray")))],
         ]),
         "large/plate3_panel.3mf": ("Bezel panel, one piece (bed 220 mm or more)", [
