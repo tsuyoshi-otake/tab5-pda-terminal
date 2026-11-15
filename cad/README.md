@@ -38,7 +38,7 @@ designs (bare PaperDIY, magnets, push-rods, panel-mount USB-C lids) are still in
 | ports | USB-C at the left end, y −24, at the kit's front face | a **port bay** left of the Tab5: power button, USB-A, USB-C, headset jack and Grove reachable through the panel; one USB-C-sized opening in the left end wall, in line with the USB-C port, through which all the cables leave (`KIT_PORTS`, `PORT_BAY`; below) |
 | panel | KEY slot + guard, power slot, 6 screws | camera hole, 2 microphone holes, the port bay's opening (a rectangle in line with the window, closed by a press-in cover; no separate power slot), 4 screws (corners) + 2 pillars without a screw right of the Tab5 (`PANEL_PILLARS`) |
 | snap's flex zone | to 2 mm below the ceiling | to 8 mm below the ceiling (the same 11.9 mm of height in a taller wall): 19.1 N/mm, strain 0.33 % at 0.40 mm |
-| split (A1 mini) | lid x −72, panel x −74.2 (left ends) | lid x +72, panel x +75 (right ends, so the port bay is in one piece with a whole ceiling); one splice plate each; the tray still at x −72 |
+| split (A1 mini) | lid x −72, panel x −74.2 (left ends) | lid and panel both at x +73 (right ends, so the port bay is in one piece with a whole ceiling; in line, so the seam is one line from the screen side); one splice plate each; the tray still at x −72 |
 | tray, hinges, snap lip and groove, relief at the hinge side | | unchanged (the tray is the same part); no hinge covers in either version since 2026-11-15 |
 
 ### The Tab5 in the lid
@@ -104,8 +104,11 @@ The Tab5's left edge (its ports) is 37.8 mm inside the lid's left end wall. That
   lid shut the bay faces the keyboard and the cables leave by the left end.
 - The build checks each plug (the USB-C one with a Ø4 cable out through the wall) against the lid, the panel, the tray
   and the other plugs, and the cover (ribs left off) against all of them and the Tab5 (`port_plugs`, `port_bay_log`).
-- To keep the bay's ceiling whole, the A1 mini split of the lid and the panel moved to their right ends (x +72 and
-  +75); the two pillars right of the Tab5 moved out to x 78.5, clear of the lid's seam. The piece files are named after
+- To keep the bay's ceiling whole, the A1 mini split of the lid and the panel moved to their right ends, both at
+  x +73 (until 2026-11-15 the lid at +72 and the panel at +75: two lines 3 mm apart from the screen side). The lid's
+  main piece is 174 mm, the most the A1 mini plate takes with its 3 mm margins; the panel's splice plate sits 4 mm
+  on its main piece (its pocket stops 0.5 mm short of the rim round the Tab5) and 8 mm on the end piece. The two
+  pillars right of the Tab5 are at x 78.5, clear of the lid's seam; their gussets stop 1 mm short of it. The piece files are named after
   their side (`piece_names`: `lid_A_right`, `panel_A_right`, `tray_A_left`).
 
 The layer that closes the opening is a 13 mm bridge across it; PrusaSlicer leaves the outer 0.3 mm of the 2 mm wall's
@@ -120,11 +123,11 @@ faces to the layer above there (the report lists it): at worst a faint line alon
   at the middle of the screen the lid stands is 1.1…1.8 N at 120°, 0.7…1.4 N at 135°. Stiffer hinges need other seats;
   not drawn.
 - **Tipping.** Lid on the table at 143°. The keyboard has to weigh 156 g for the device to stay upright up to there
-  (102 g up to 120°). Not weighed.
+  (101 g up to 120°). Not weighed.
 - **Snap.** Simulated (`out/snap_sim.md`): 10 N to close and 13 N of hold with the lid where it was drawn, 5 N of hold
   with the lid 0.2 mm forward, none at 0.4 mm.
 - **Print.** Plates 1–3: 157 g, 4 h 03 min (A1 mini, 0.4 nozzle, 0.2 layers, no supports); one-piece parts for a 220 mm
-  bed: 156 g, 3 h 52 min.
+  bed: 155 g, 3 h 51 min.
 
 ### Not reachable in the lid
 

@@ -1359,11 +1359,12 @@ PANEL_RIB_INFO = []          # filled by build_kit_lid_shell, for the log
 
 
 def panel_boss_keepout():
-    """Plan boxes the boss ribs stay out of: the kit with the panel's rim round it, the lid's splice-plate pockets
-    (they go in from below, flush with the ceiling) and the USB-C plug path."""
+    """Plan boxes the boss ribs stay out of: the kit with the panel's rim round it, the lid's seam (A1 mini split: no
+    sliver of a rib on the other piece), the lid's splice-plate pockets (they go in from below, flush with the ceiling)
+    and the USB-C plug path."""
     w, c = PANEL_RIM["w"] + 0.5, SPLICE["clr"] + 0.5
     g = SPLICE["lid"]
-    out = [(KIT_X0 - w, KIT_X1 + w, KIT_Y0 - w, KIT_Y1 + w)]
+    out = [(KIT_X0 - w, KIT_X1 + w, KIT_Y0 - w, KIT_Y1 + w), (SPLIT_X_LID - 1.0, SPLIT_X_LID + 1.0, -BIG, BIG)]
     out += [(SPLIT_X_LID + g["x0"] - c, SPLIT_X_LID + g["x1"] + c, ya - c, yb + c) for ya, yb in g["y"]]
     if PORT_BAY:
         y0, y1 = port_bay_span()
