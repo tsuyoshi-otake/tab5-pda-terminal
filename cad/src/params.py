@@ -175,16 +175,25 @@ KIT_LID = os.environ.get("KIT_LID", "shell")
 SHELL_WALL = WALL
 SHELL_CEIL = WALL
 USB_CEIL = SHELL_CEIL         # no relief over the USB-C plug path (the plug runs below the Tab5's back)
-# Port bay (shell lid): the space between the Tab5's left edge and the lid's left end wall (38 mm) is open from the
-# screen side through the bezel panel, so every port on that edge can be reached: a plug goes in through its opening in
-# the end wall (the cable stays there), and a finger in the bay guides it into the port and pushes it home. With the lid
-# shut the bay faces the keyboard and the cables leave by the left end. No ribs in the bay (fingers need the room).
+# Port bay (shell lid): the space between the Tab5's left edge and the lid's left end wall (38 mm). A plug goes in
+# through its opening in the end wall (the cable stays there); with the bay's cover off, a finger in the bay guides it
+# into the port and pushes it home. Nothing stands in the bay (fingers need the room). The cover goes back on with the
+# plugs in, and the cables leave by the left end.
 #   clr: around each plug in the end-wall openings; openings closer than `merge` become one
 #   ceil_clr: least gap between a plug and the ceiling; where a plug needs more, the ceiling over its lane (end wall to
 #             the Tab5) is thinned from inside to `skin` (the USB-A and headset plugs stand 0.4-0.6 mm above the
 #             Tab5's back)
-#   y: the bay in the panel (and the clear space in the lid); frame: what is left of the panel along its left edge
-PORT_BAY = dict(clr=0.5, merge=2.0, ceil_clr=0.2, skin=LID_SKIN, y=(-24.5, 32.5), frame=3.0, r=0.75)
+# The bay's opening in the panel is a plain rectangle in line with the screen's window: the same top and bottom edges,
+# as far from the window as the rim round the Tab5 allows, and as far again from the panel's left edge (port_bay_rect).
+PORT_BAY = dict(clr=0.5, merge=2.0, ceil_clr=0.2, skin=LID_SKIN, r=0.5)
+# The bay's cover: a plate flush with the panel face in the opening's front `face` mm; the panel's back `ledge_t` mm (face +
+# ledge_t = PANEL_T)
+# reaches `ledge` mm into the opening as the ledge it rests on. A frame on its back (inside the ledge, down to `depth`
+# behind the Tab5's screen face, clear of the plugs) keeps it flat. Held by tapered crush ribs on the plate's edges,
+# like the hinge covers: clr at the back (the lead-in), clr + rib_h at the front (tight: lower rib_h, reprint the
+# cover). It comes out with a fingernail in the chamfer round its face.
+PORT_COVER = dict(face=1.0, ledge_t=0.6, ledge=1.2, clr=0.2, rib_h=0.1, rib_r=0.9, ribs=(2, 4), chamfer=0.6,
+                  frame_t=1.0, depth=2.0)
 PANEL_T = 1.6                 # bezel panel (countersunk M2x8 heads: 1.2 deep)
 PANEL_CLR = 0.2               # panel to the lid's walls and hinge pads
 PANEL_WIN_CLR = 0.3           # window = the kit's window + 0.3 per side (the kit can shift by KIT_FIT), square edges

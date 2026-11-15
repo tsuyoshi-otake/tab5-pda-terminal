@@ -56,6 +56,7 @@
   0.05376
  ],
  "PANEL": true,
+ "PORT_COVER": true,
  "COVER_LID_Z1": 26.400000000000002,
  "KIT": {
   "cx": 2.8,

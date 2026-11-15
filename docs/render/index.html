@@ -226,6 +226,7 @@ const A = await (await fetch('models/assembly.json')).json();
 const KITMODE = A.PD_MOUNT === 'kit';     // PaperDIY Complete Kit in its own case, in a pocket in a solid lid
 const COVER_STL = !!A.COVER_SCREWED;   // flush covers held by the hinge screws: drawn from their STLs
 const NAMES = (KITMODE ? ['display_lid_usbc', 'tab5_envelope', 'keyboard_tray'].concat(A.PANEL ? ['display_panel_kit'] : [])
+    .concat(A.PORT_COVER ? ['port_cover'] : [])
   : ['display_lid_usbc', 'display_panel_paperdiy', 'paperdiy_strap', 'key_pushrod_x2', 'power_pushrod', 'keyboard_tray'])
   .concat(COVER_STL ? ['hinge_cover_lid_x2', 'hinge_cover_tray_x2'] : []);
 const G = {};
@@ -253,6 +254,7 @@ if (KITMODE) {
   P.paperdiy = new THREE.Group(); lid.add(P.paperdiy);
   P.paperdiy.add(mesh(G.tab5_envelope, pla('#1c1d20', 0.4)));
   if (A.PANEL) { P.panel = mesh(G.display_panel_kit, M.panel); lid.add(P.panel); }
+  if (A.PORT_COVER) { P.portCover = mesh(G.port_cover, M.panel); lid.add(P.portCover); }   // the port bay's cover, in place
   const scr = new THREE.Mesh(new THREE.PlaneGeometry(K.win[0], K.win[1]),
     new THREE.MeshStandardMaterial({ map: screenTexture(), roughness: 0.6, emissive: 0xffffff, emissiveIntensity: 0.75 }));
   scr.material.emissiveMap = scr.material.map;
@@ -356,7 +358,8 @@ const FIGURES = KITMODE ? {
   exploded: [
     ['lid',      [0, 0, 150],   [-96, -40, 24],   1,  '蓋 A + B'],
     ['paperdiy', [0, 0, 100],   [-58, -36, 22],   3,  'M5Stack Tab5'],
-    ['panel',    [0, 0, 62],    [-97, -40, 15.8], 2,  '化粧パネル A + B'],
+    ['panel',    [0, 0, 62],    [-97, 30, 15.8],  2,  '化粧パネル A + B'],
+    ['portCover', [0, 0, 44],   [-91, -31, 14.2], 2,  'ポートベイのカバー'],
     ['kb',       [0, 0, 26],    [-97, -43, 12],   6,  'キーボード'],
     ['tray',     [0, 0, 0],     [-100, -46, 6],   7,  'トレイ A + B'],
   ],

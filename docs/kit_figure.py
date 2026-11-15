@@ -99,8 +99,8 @@ def inner_view(ax, lid, panel, kit):
     cx, cy, _ = B.KIT_CAMERA
     note(ax, (B.KIT_CX + cx, -cy + 3.0), "カメラの穴", (70.0, 20.0), fs=9.5)
     mx, my = B.KIT_MICS[0]
-    note(ax, (B.KIT_CX + mx, -my + 1.0), "マイクの穴（2 か所）", (-40.0, 57.0), fs=9.5)
-    note(ax, (B.KIT_CX - B.KIT_L / 2 - 2.5, -sum(B.KIT_PWR_CAP_Y) / 2), "電源ボタン（Tab5 の左の縁）を\n横から押す切り欠き", (-50.0, -61.0), fs=9.5)
+    note(ax, (B.KIT_CX + mx, -my + 1.0), "マイクの穴（2 か所）", (-8.0, 57.0), fs=9.5)
+    note(ax, (B.KIT_CX - B.KIT_L / 2 - 2.5, -sum(B.KIT_PWR_CAP_Y) / 2), "電源ボタン（ポートベイの中、\nTab5 の左の縁を横から押す）", (-50.0, -61.0), fs=9.5)
     if B.PORT_BAY:      # the ports on the Tab5's left edge, seen through the port bay, and the plugs coming in
         label = {"usb_a": "USB-A", "usb_c": "USB-C", "jack": "イヤホン", "grove": "Grove"}
         xe = B.KIT_FACE_X
@@ -110,10 +110,10 @@ def inner_view(ax, lid, panel, kit):
             ax.text(xe - 3.0, y, label[p["key"]], fontsize=9, color=INK, ha="right", va="center", zorder=7)
             ax.add_patch(FancyArrowPatch((-112.0, y), (-101.5, y), arrowstyle="-|>", mutation_scale=10,
                                          color=RED, lw=1.2, zorder=8))
-        ax.text(-113.0, 49.0, "左端の穴からプラグを入れ、\n切り欠き（ポートベイ）に指を入れて\n端子まで押し込む", fontsize=9.5,
+        ax.text(-113.0, 49.0, "左端の穴からプラグを入れ、カバーを外した\nポートベイに指を入れて端子まで押し込む\n（挿したままカバーを戻せる）", fontsize=9.5,
                 color=RED, va="bottom")
-        ya, yb = B.PORT_BAY["y"]
-        note(ax, (-94.5, -yb + 4.5), "ポートベイ\n（パネルの切り欠き）", (-112.0, -61.0), fs=9.5)
+        _, _, ya, yb = B.port_bay_rect()
+        note(ax, (-89.0, -yb + 4.5), "ポートベイ\n（カバーを外したところ）", (-112.0, -61.0), fs=9.5)
     else:
         ax.add_patch(FancyArrowPatch((-112.0, -B.KIT_USB_Y), (-101.5, -B.KIT_USB_Y), arrowstyle="-|>", mutation_scale=12,
                                      color=RED, lw=1.4, zorder=8))

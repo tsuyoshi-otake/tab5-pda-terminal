@@ -63,7 +63,10 @@ THIN_NOTE = {"panel_B_main": "the screen-window bevel ends in a sharp edge (as i
 if PD_MOUNT == "kit":
     THIN_NOTE[piece_names("lid")[1]] = (f"the ceiling over the USB-A, USB-C and headset lanes of the port bay is "
                                         f"{PORT_BAY['skin']:g} mm, printed as the first layers on the bed")
-    THIN_NOTE[piece_names("panel")[1]] = "the snap bumps on its front and back edges come to a ridge"
+    THIN_NOTE[piece_names("panel")[1]] = ("the snap bumps on its front and back edges come to a ridge; the ledge round the "
+                                          "port bay's opening, which the cover rests on, is the panel's back 0.6 mm")
+    THIN_NOTE["port_cover"] = ("a 1 mm plate on a 1 mm frame; the thin spots are the chamfer round its face and the "
+                               "crush ribs on its edges")
     _sp = "the splice-plate pockets at the seam leave half the wall until the plate is glued in"
     for _p in piece_names("lid") + piece_names("tray") + piece_names("panel"):
         THIN_NOTE[_p] = (THIN_NOTE[_p] + "; " + _sp) if _p in THIN_NOTE else _sp
@@ -77,6 +80,8 @@ if PD_MOUNT == "kit":
     LID_PARTS = [(n, 1) for n in piece_names("lid")] + [("hinge_cover_lid_x2", 2)]
     if os.path.exists(os.path.join(SPLIT_DIR, piece_names("panel")[1] + ".stl")):
         LID_PARTS += [(n, 1) for n in piece_names("panel")]
+    if os.path.exists(os.path.join(OUT_DIR, "port_cover.stl")):
+        LID_PARTS += [("port_cover", 1)]
 BASE_PARTS = [(n, 1) for n in piece_names("tray")] + [("hinge_cover_tray_x2", 2)]
 
 

@@ -167,8 +167,9 @@ def plates():
             ] + splice_row("tray")),
         } | ({
             # bezel panel pieces, visible face on the bed (the locating rim grows upward)
-            "plate3_panel.3mf": ("Bezel panel (A + B)", [
-                [(PA, part(S(PA), ROT_Z90))],
+            "plate3_panel.3mf": ("Bezel panel (A + B)" + (" and the port bay's cover" if os.path.exists(O("port_cover")) else ""), [
+                [(PA, part(S(PA), ROT_Z90))] + ([("port_cover", part(O("port_cover"), ROT_Z90))]
+                                                 if os.path.exists(O("port_cover")) else []),
                 [(PB, part(S(PB)))],
             ] + splice_row("panel")),
         } if os.path.exists(S(PB)) else {}) | {
@@ -209,7 +210,7 @@ def large_plates():
         ]),
         "large/plate3_panel.3mf": ("Bezel panel, one piece (bed 220 mm or more)", [
             [("panel", part(W("panel")))],
-        ]),
+        ] + ([[("port_cover", part(O("port_cover"), ROT_Z90))]] if os.path.exists(O("port_cover")) else [])),
     }
     for sp in USB_PM_VARIANTS:
         n = usb_name(sp).replace("lid_A_left", "lid")

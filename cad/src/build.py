@@ -546,7 +546,7 @@ def write_assembly_json():
                 BATT=dict(cx=BATT_CX, cy=BATT_CY, z0=PANEL_Z_BACK - BATT_POCKET, L=BATT_L, W=BATT_W, T=BATT_T),
                 STRAP=dict(x=STRAP_X, w=STRAP_W, y=STRAP_POST_Y, top=STRAP_TOP), PD_MOUNT=PD_MOUNT)
     if PD_MOUNT == "kit":
-        data.update(LID_TOP=[LID_TOP[0], LID_TOP[1]], LID_UNDER=list(LID_UNDER), PANEL=SHELL,
+        data.update(LID_TOP=[LID_TOP[0], LID_TOP[1]], LID_UNDER=list(LID_UNDER), PANEL=SHELL, PORT_COVER=bool(SHELL and PORT_BAY),
                     COVER_LID_Z1=min(Z_PART + HINGE_WIDTH / 2 + HINGE_CLR + COVER_TOP_RIM, top_z(Y_BACK) - LID_CHAMFER),
                     KIT=dict(cx=KIT_CX, z0=KIT_Z0, L=KIT_L, W=KIT_W, T=KIT_T, R=KIT_R, win=list(KIT_WIN), win_off=KIT_WIN_OFF, win_off_y=KIT_WIN_OFF_Y,
                              usb_y=KIT_USB_Y, usb_z=list(KIT_USB_Z)))
@@ -941,19 +941,70 @@ def port_bay_cuts():
     g, (a, b) = PORT_BAY, LID_TOP[:2]
     xi = LID_END_X + SHELL_WALL
     cuts = [box(LID_END_X - 1.0, xi + 0.5, l["y0"], l["y1"], KIT_Z0 + l["d0"], KIT_Z0 + l["d1"]) for l in port_lanes()]
-    cuts.append(box(xi, KIT_FACE_X + 1.0, *g["y"], -10.0, 60.0) ^ half_space(a - SHELL_CEIL, b, False))
+    cuts.append(box(xi, KIT_FACE_X + 1.0, *port_bay_span(), -10.0, 60.0) ^ half_space(a - SHELL_CEIL, b, False))
     cuts += [box(xi - 0.01, KIT_FACE_X + 1.0, l["y0"], l["y1"], -10.0, 60.0) ^ half_space(a - g["skin"], b, False)
              for l in port_lanes() if l["relieved"]]
     return cuts
 
 
-def port_bay_panel_cut(z0, z1):
-    """The bezel panel's side of the port bay: open from a frame along its left edge to the rim round the Tab5."""
-    g = PORT_BAY
-    xa, xb = LID_END_X + SHELL_WALL + PANEL_CLR + g["frame"], KIT_X0 - PANEL_RIM["w"] + 0.05   # (not flush with the rim's face)
-    ya, yb = g["y"]
-    return prism_z(rrect((xa + xb) / 2, (ya + yb) / 2, xb - xa, yb - ya, g["r"]), z0, z1)
+def port_bay_rect():
+    """(x0, x1, y0, y1) of the bay's opening in the panel face: a rectangle with the window's top and bottom edges,
+    its right edge at the rim round the Tab5, and as far from the panel's left edge as from the window."""
+    wx0 = KIT_CX + KIT_WIN_OFF - KIT_WIN[0] / 2 - PANEL_WIN_CLR
+    wh = KIT_WIN[1] / 2 + PANEL_WIN_CLR
+    x1 = KIT_X0 - PANEL_RIM["w"]
+    x0 = LID_END_X + SHELL_WALL + PANEL_CLR + (wx0 - x1)
+    return x0, x1, KIT_WIN_OFF_Y - wh, KIT_WIN_OFF_Y + wh
 
+
+def port_bay_span():
+    """(y0, y1) kept clear inside the lid: the opening and every plug's lane."""
+    _, _, y0, y1 = port_bay_rect()
+    lanes = port_lanes()
+    return min(y0, lanes[0]["y0"]), max(y1, max(l["y1"] for l in lanes))
+
+
+def rect_cs(x0, x1, y0, y1, r):
+    return rrect((x0 + x1) / 2, (y0 + y1) / 2, x1 - x0, y1 - y0, r)
+
+
+def port_bay_panel_cut(z0, z1):
+    """The bezel panel's side of the port bay: the rectangle through the panel's front `face` mm, and inside it, by the
+    ledge's width, through the rest (the ledge the cover rests on)."""
+    g, c = PORT_BAY, PORT_COVER
+    x0, x1, y0, y1 = port_bay_rect()
+    zf = PANEL_Z0 + c["face"]
+    e = c["ledge"]
+    return (prism_z(rect_cs(x0, x1, y0, y1, g["r"]), z0, zf) +
+            prism_z(rect_cs(x0 + e, x1 - e, y0 + e, y1 - e, g["r"]), zf - 0.01, z1))
+
+
+def build_port_cover(ribs=True):
+    """The port bay's cover, in place: a plate in the opening's front `face` mm (clr a side, chamfer round its face),
+    a frame on its back inside the ledge down to `depth` behind the screen face, and tapered crush ribs on the plate's
+    edges (ribs=False: without them, for the clearance checks)."""
+    g, c = PORT_BAY, PORT_COVER
+    x0, x1, y0, y1 = port_bay_rect()
+    k, f, ch = c["clr"], c["face"], c["chamfer"]
+    za, zf = PANEL_Z0, PANEL_Z0 + c["face"]
+    r = max(g["r"] - k, 0.2)
+    plate = (prism_z(rect_cs(x0 + k + ch, x1 - k - ch, y0 + k + ch, y1 - k - ch, r), za, zf) +   # chamfer round the face
+             prism_z(rect_cs(x0 + k, x1 - k, y0 + k, y1 - k, r), za + ch, zf)).hull()
+    e = c["ledge"] + k
+    outer = rect_cs(x0 + e, x1 - e, y0 + e, y1 - e, r)
+    inner = rect_cs(x0 + e + c["frame_t"], x1 - e - c["frame_t"], y0 + e + c["frame_t"], y1 - e - c["frame_t"], r)
+    cov = plate + prism_z(outer - inner, zf - 0.01, KIT_Z0 + c["depth"])
+    if ribs:     # cones along z: radius rib_r on the face side, rib_r - rib_h at the back; reaching clr + rib_h past
+        n_short, n_long = c["ribs"]      # the plate's edge at the face side, clr (just touching) at the back
+        rr = c["rib_r"]
+        e_c = rr - k - c["rib_h"]                       # the cone's axis, this far in from the plate's edge
+        cone = M.cylinder(zf - (za + ch), rr, rr - c["rib_h"], SEG)
+        at = [(x0 + k + e_c, y0 + 6.0 + (y1 - y0 - 12.0) * (i + 0.5) / n_short) for i in range(n_short)]
+        at += [(x1 - k - e_c, y) for _, y in at]
+        xs = [x0 + 5.0 + (x1 - x0 - 10.0) * (i + 0.5) / n_long for i in range(n_long)]
+        at += [(x, y0 + k + e_c) for x in xs] + [(x, y1 - k - e_c) for x in xs]
+        cov = cov + union([cone.translate([x, y, za + ch]) for x, y in at])
+    return cov
 
 def port_plugs(cable=True):
     """{key: plug} for the checks: each plug of KIT_PORTS in its port, its body from the Tab5's face outward (a cylinder
@@ -970,13 +1021,23 @@ def port_plugs(cable=True):
     return out
 
 
-def port_bay_log(plugs, lid, panel):
-    """Log the port bay and check that every plug (with its cable) clears the lid, the panel and the other plugs."""
+def port_bay_log(plugs, lid, panel, tray, kit):
+    """Log the port bay and check that every plug (with its cable) clears the lid, the panel and the other plugs, and
+    that the cover (ribs left off) clears everything with the plugs in."""
     g = PORT_BAY
     xi = LID_END_X + SHELL_WALL
+    x0, x1, y0, y1 = port_bay_rect()
+    wx0 = KIT_CX + KIT_WIN_OFF - KIT_WIN[0] / 2 - PANEL_WIN_CLR
+    c = PORT_COVER
     log(f"  port bay: the space between the Tab5's left face (x {KIT_FACE_X:.1f}) and the lid's end wall (inner face x "
-        f"{xi:.1f}), {KIT_FACE_X - xi:.1f} mm, open through the panel over y {g['y'][0]:g}..{g['y'][1]:g} (frame "
-        f"{g['frame']:g} mm along the panel's left edge, the rim round the Tab5 kept); nothing stands in it")
+        f"{xi:.1f}), {KIT_FACE_X - xi:.1f} mm; nothing stands in it")
+    log(f"    opening in the panel: x {x0:.2f}..{x1:.2f}, y {y0:.2f}..{y1:.2f} ({x1 - x0:.2f} x {y1 - y0:.2f} mm), a "
+        f"rectangle with the window's top and bottom edges, {wx0 - x1:.2f} mm from the window and from the panel's left "
+        f"edge; a ledge {c['ledge']:g} mm wide in the panel's back {c['ledge_t']:g} mm")
+    log(f"    cover: a {c['face']:g} mm plate flush with the panel face ({c['clr']:g} a side, {c['chamfer']:g} mm chamfer round "
+        f"its face) on the ledge, a {c['frame_t']:g} mm frame on its back to {c['depth']:g} behind the screen face; "
+        f"{2 * sum(c['ribs'])} crush ribs on its edges, {c['clr']:g} -> {c['clr'] + c['rib_h']:g} mm out (0 -> "
+        f"{c['rib_h']:g} mm into the opening's wall)")
     for l in port_lanes():
         names = " + ".join(next(p["name"] for p in KIT_PORTS if p["key"] == k) for k in l["keys"])
         log(f"    end-wall opening for {names}: y {l['y0']:.2f}..{l['y1']:.2f}, {l['d0']:.2f}..{l['d1']:.2f} mm behind the "
@@ -1002,6 +1063,15 @@ def port_bay_log(plugs, lid, panel):
         for b in keys[i + 1:]:
             v = (port_plugs(cable=False)[a] ^ port_plugs(cable=False)[b]).volume()
             assert v < 0.01, (a, b, v)
+    plain = build_port_cover(ribs=False)
+    for part, name in ((lid, "lid"), (panel, "panel"), (tray, "tray (closed)"), (kit, "Tab5"))\
+            + tuple((pl, f"{k} plug") for k, pl in plugs.items()):
+        v = (plain ^ part).volume()
+        log(f"    cover vs {name}: {v:.3f} mm3")
+        assert v < 0.01, ("cover", name, v)
+    press = (build_port_cover() ^ panel).volume()
+    log(f"    cover's crush ribs pressed into the panel: {press:.2f} mm3 (nothing else touches)")
+    assert 0.0 < press < 2.0, press
     ys = sorted((p["y"] - p["plug"][0] / 2, p["y"] + p["plug"][0] / 2) for p in KIT_PORTS)
     log(f"    all four plugged at once: {min(b[0] - a[1] for a, b in zip(ys, ys[1:])):.2f} mm between the nearest two plugs")
 
@@ -1255,7 +1325,8 @@ def panel_boss_keepout():
     out = [(KIT_X0 - w, KIT_X1 + w, KIT_Y0 - w, KIT_Y1 + w)]
     out += [(SPLIT_X_LID + g["x0"] - c, SPLIT_X_LID + g["x1"] + c, ya - c, yb + c) for ya, yb in g["y"]]
     if PORT_BAY:
-        out.append((-BIG, KIT_X0, PORT_BAY["y"][0] - 0.5, PORT_BAY["y"][1] + 0.5))
+        y0, y1 = port_bay_span()
+        out.append((-BIG, KIT_X0, y0 - 0.5, y1 + 0.5))
     else:
         out.append((-BIG, KIT_X0, KIT_USB_Y - USB_CH["w"] / 2 - 0.5, KIT_USB_Y + USB_CH["w"] / 2 + 0.5))
     return out
@@ -1403,12 +1474,13 @@ def build_kit_panel():
         P = P + (prism_z(ring, PANEL_Z1 - 0.01, KIT_Z0 + KIT_T) ^ prism_z(shell_inner().offset(-PANEL_CLR, m3.JoinType.Round,
                                                                                                2.0, SEG), -BIG, BIG)
                  ^ half_space(LID_TOP[0] - SHELL_CEIL - PANEL_CLR, LID_TOP[1], False))   # and under the ceiling
-    xe = KIT_CX - KIT_L / 2
-    xa, xb, ya, yb = xe - g["out"], xe + 0.5, KIT_PWR_CAP_Y[0] - g["end"], KIT_PWR_CAP_Y[1] + g["end"]
-    cuts.append(prism_z(rrect((xa + xb) / 2, (ya + yb) / 2, xb - xa, yb - ya, g["r"]), z0, z1))
-    if PORT_BAY:        # open over all the ports on the Tab5's left edge (the rim round the Tab5 stays)
+    if PORT_BAY:        # one rectangle over everything on the Tab5's left edge, the power button included (the rim stays)
         cuts.append(port_bay_panel_cut(z0, z1))
-    else:
+    else:               # a finger slot beside the power button
+        xe = KIT_CX - KIT_L / 2
+        xa, xb, ya, yb = xe - g["out"], xe + 0.5, KIT_PWR_CAP_Y[0] - g["end"], KIT_PWR_CAP_Y[1] + g["end"]
+        cuts.append(prism_z(rrect((xa + xb) / 2, (ya + yb) / 2, xb - xa, yb - ya, g["r"]), z0, z1))
+    if not PORT_BAY:
         cuts.append(box(KIT_X0 - r["w"] - 1.0, KIT_X0 + 0.01, KIT_USB_Y - 6.6, KIT_USB_Y + 6.6, PANEL_Z1, z1))  # plug
     if PANEL_USB_SLOT:  # open over the plug path, from a frame at the panel's left edge to the kit's end
         u = PANEL_USB_SLOT
@@ -1619,6 +1691,8 @@ def main_kit():
     export(kit, f"{OUT_DIR}/tab5_envelope.stl")
     if SHELL:
         export(panel, f"{OUT_DIR}/display_panel_kit.stl")
+        if PORT_BAY:
+            export(build_port_cover(), f"{OUT_DIR}/port_cover.stl")
     lid_cov, tray_cov = hinge_covers()
     export(lid_cov[0], f"{OUT_DIR}/hinge_cover_lid_x2.stl")
     export(tray_cov[0], f"{OUT_DIR}/hinge_cover_tray_x2.stl")
@@ -1704,7 +1778,7 @@ def main_kit():
         interference(pl, lid, f"{k} plug (+ cable) in the kit's port vs lid")
         interference(pl, tray, f"{k} plug (+ cable) vs tray")
     if SHELL and PORT_BAY:
-        port_bay_log(plugs, lid, panel)
+        port_bay_log(plugs, lid, panel, tray, kit)
     interference(lid, tray, "lid vs tray")
     if PART_RELIEF:
         p = PART_RELIEF

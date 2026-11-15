@@ -9,9 +9,9 @@
  "plate1_lid.3mf": {
   "warnings": [],
   "ok": true,
-  "time": "1h 59m 18s",
-  "grams": 71.84,
-  "metres": 24.08641
+  "time": "1h 59m 14s",
+  "grams": 71.83,
+  "metres": 24.08438
  },
  "plate2_tray.3mf": {
   "warnings": [],
@@ -23,16 +23,16 @@
  "plate3_panel.3mf": {
   "warnings": [],
   "ok": true,
-  "time": "32m 33s",
-  "grams": 20.17,
-  "metres": 6.7621
+  "time": "38m 16s",
+  "grams": 23.57,
+  "metres": 7.90216
  },
  "large/plate1_lid.3mf": {
   "warnings": [],
   "ok": true,
-  "time": "1h 54m 48s",
-  "grams": 71.39,
-  "metres": 23.93453
+  "time": "1h 55m 4s",
+  "grams": 71.37,
+  "metres": 23.93085
  },
  "large/plate2_tray.3mf": {
   "warnings": [],
@@ -44,40 +44,40 @@
  "large/plate3_panel.3mf": {
   "warnings": [],
   "ok": true,
-  "time": "29m 26s",
-  "grams": 20.18,
-  "metres": 6.7672799999999995
+  "time": "35m 5s",
+  "grams": 23.58,
+  "metres": 7.90728
  },
- "large_total_g": 152.47,
- "large_total_min": 231,
- "total_g": 153.75,
- "total_min": 243,
+ "large_total_g": 155.85000000000002,
+ "large_total_min": 238,
+ "total_g": 157.14,
+ "total_min": 249,
  "nozzle_check": {
   "worst_spot_mm2": 0.4983970812484153,
   "wall_gaps": 0,
   "end_wall_bridge_strips_mm2": 8.986297556853701
  },
- "lid_g": 216.42000000000002,
+ "lid_g": 219.81,
  "base_g": 63.55,
  "lid_cg": [
-  3.5511351774709365,
-  2.452950558815129,
-  22.069687554615722
+  2.313313056470725,
+  2.4480407852106527,
+  21.958754630883316
  ],
  "pivot_y": 53.0,
  "table_contact_deg": 139.9,
  "table_limit": 139,
- "keyboard_min_g": 139.42211412834763,
+ "keyboard_min_g": 142.01119339133788,
  "hinge_torque_nm": [
   0.1176,
   0.1568,
   0.196
  ],
- "lid_moment_nm": 0.10763390186700067,
+ "lid_moment_nm": 0.10933046499557794,
  "springback_push_n": [
-  0.100011019899642,
-  0.4933878387656731,
-  0.8867646576317043
+  0.08298580034542954,
+  0.4763626192114606,
+  0.8697394380774919
  ],
  "snap_k": 19.066341835916937,
  "snap_hold_n": 13.055352232452762,
@@ -88,8 +88,8 @@
   10.163622338458028
  ],
  "open_force_n": [
-  6.168070453062983,
-  13.548740071218434
+  6.15104523350877,
+  13.531714851664223
  ],
  "keyboard_for_one_hand_g": 332.06295982814333
 }

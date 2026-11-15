@@ -36,7 +36,7 @@ designs (bare PaperDIY, magnets, push-rods, panel-mount USB-C lids) are still in
 | lid | top slopes, 23.8 / 26.4 mm closed | flat top, 29.8 mm closed (`kit_lid_top`: flat when the device needs more than the hinge) |
 | window | 105 × 59.7 | 110.7 × 62.3 (+0.3 a side), centred in the lid; 0.6 mm off the Tab5's middle across |
 | ports | USB-C at the left end, y −24, at the kit's front face | a **port bay** left of the Tab5: power button, USB-A, USB-C, headset jack and Grove reachable through the panel, plugs in through openings in the left end wall (`KIT_PORTS`, `PORT_BAY`; below) |
-| panel | KEY slot + guard, power slot, 6 screws | camera hole, 2 microphone holes, the port bay (joined with the slot beside the power button), 4 screws (corners) + 2 pillars without a screw right of the Tab5 (`PANEL_PILLARS`) |
+| panel | KEY slot + guard, power slot, 6 screws | camera hole, 2 microphone holes, the port bay's opening (a rectangle in line with the window, closed by a press-in cover; no separate power slot), 4 screws (corners) + 2 pillars without a screw right of the Tab5 (`PANEL_PILLARS`) |
 | snap's flex zone | to 2 mm below the ceiling | to 8 mm below the ceiling (the same 11.9 mm of height in a taller wall): 19.1 N/mm, strain 0.33 % at 0.40 mm |
 | split (A1 mini) | lid x −72, panel x −74.2 (left ends) | lid x +72, panel x +75 (right ends, so the port bay is in one piece with a whole ceiling); one splice plate each; the tray still at x −72 |
 | tray, hinges, covers, snap lip and groove, relief at the hinge side | | unchanged (the tray is the same part) |
@@ -75,8 +75,16 @@ cover (`KIT_RIBS_X`, left of the battery bay), 0.2 mm behind it. Nothing uses it
 
 The Tab5's left edge (its ports) is 37.8 mm inside the lid's left end wall. That space is the **port bay**:
 
-- **Panel**: open from a 3 mm frame along its left edge to the rim round the Tab5, over y −24.5…32.5, joined with the
-  slot beside the power button (`port_bay_panel_cut`). The rim stays, so the Tab5 is still located at its corners.
+- **Panel**: a plain rectangle, x −91.85…−62.60, y −32.05…30.85 (29.25 × 62.9 mm, `port_bay_rect`): the window's top and
+  bottom edges, its right edge at the rim round the Tab5 (kept), 6.95 mm from the window and as far from the panel's
+  left edge. Its front 1.0 mm is the rectangle; the panel's back 0.6 mm reaches 1.2 mm into it as a ledge
+  (`port_bay_panel_cut`).
+- **Cover** (`build_port_cover`, `PORT_COVER`, printed with the panel, face down): a 1.0 mm plate flush with the panel
+  face (0.2 mm a side, a 0.6 mm chamfer round its face to get a fingernail under) resting on the ledge, a 1.0 mm frame
+  on its back inside the ledge down to 2 mm behind the screen face (clear of the plugs, which start at 4.1), and 12
+  tapered crush ribs on the plate's edges as on the hinge covers: 0.2 mm out at the back, 0.3 at the face, so 0.1 mm
+  into the opening's wall when pressed home. Tight or loose: change `rib_h` and reprint the cover. It goes back on with
+  the plugs in; the power button is in the bay too, so the cover comes off to press it.
 - **End wall**: an opening per plug (`port_lanes`): the plug's size + 0.5 mm a side, merged where two come closer than
   2 mm. USB-A + USB-C: y −23.5…6.5, 4.1…13.0 mm behind the screen face; headset: y 8.75…17.25, 4.75…13.0; Grove:
   y 20.5…31.5, 6.3…12.2. Posts of 2.25 and 3.25 mm between them.
@@ -84,12 +92,12 @@ The Tab5's left edge (its ports) is 37.8 mm inside the lid's left end wall. That
   Tab5's back, so a 16 × 8 USB-A overmold and a Ø7.5 headset plug stand 0.4–0.6 mm above it; over those lanes (and the
   USB-C one between them) the ceiling is thinned from inside to 1.2 mm, end wall to Tab5, which leaves them 0.4 and
   0.25 mm. The lid's height does not change.
-- A plug goes in through its opening (the cable stays there); a finger in the bay guides it into the port and pushes it
-  home. Plugs to make room for (`KIT_PORTS` `plug`): USB-A 16 × 8 mm, USB-C 12 × 6.5, headset Ø7.5, Grove 10 × 5, all
+- A plug goes in through its opening (the cable stays there); with the cover off, a finger in the bay guides it into
+  the port and pushes it home. Plugs to make room for (`KIT_PORTS` `plug`): USB-A 16 × 8 mm, USB-C 12 × 6.5, headset Ø7.5, Grove 10 × 5, all
   straight. With all four in, the nearest two are 1 mm apart. With the lid shut the bay faces the keyboard and the
   cables leave by the left end.
 - The build checks each plug with a Ø4 cable out through the wall against the lid, the panel, the tray and the other
-  plugs (`port_plugs`, `port_bay_log`).
+  plugs, and the cover (ribs left off) against all of them and the Tab5 (`port_plugs`, `port_bay_log`).
 - To keep the bay's ceiling whole, the A1 mini split of the lid and the panel moved to their right ends (x +72 and
   +75); the two pillars right of the Tab5 moved out to x 78.5, clear of the lid's seam. The piece files are named after
   their side (`piece_names`: `lid_A_right`, `panel_A_right`, `tray_A_left`).
@@ -99,16 +107,16 @@ to the layer above there (the report lists them): at worst a faint line along th
 
 ### What the report says (`out/print_report.md`)
 
-- **Hinges.** The lid side weighs 216 g (lid, panel, Tab5, half the hinges; no plugs); its moment about the axis is at
-  most 0.108 N·m against 0.118…0.196 N·m of the two HG-MF08: 1.1× at the weak end of their tolerance. It holds, but a
-  touch adds to it: a push at the middle of the screen the lid stands is 1.2…1.9 N at 120°, 0.8…1.5 N at 135°. Stiffer
-  hinges need other seats; not drawn.
-- **Tipping.** Lid on the table at 140°. The keyboard has to weigh 139 g for the device to stay upright up to there
-  (93 g up to 120°). Not weighed.
+- **Hinges.** The lid side weighs 220 g (lid, panel and cover, Tab5, half the hinges; no plugs); its moment about the
+  axis is at most 0.109 N·m against 0.118…0.196 N·m of the two HG-MF08: 1.1× at the weak end of their tolerance. It
+  holds, but a touch adds to it: a push at the middle of the screen the lid stands is 1.2…1.9 N at 120°, 0.7…1.5 N at
+  135°. Stiffer hinges need other seats; not drawn.
+- **Tipping.** Lid on the table at 140°. The keyboard has to weigh 142 g for the device to stay upright up to there
+  (95 g up to 120°). Not weighed.
 - **Snap.** Simulated (`out/snap_sim.md`): 10 N to close and 13 N of hold with the lid where it was drawn, 6 N of hold
   with the lid 0.2 mm forward, none at 0.4 mm.
-- **Print.** Plates 1–3: 154 g, 4 h 03 min (A1 mini, 0.4 nozzle, 0.2 layers, no supports); one-piece parts for a 220 mm
-  bed: 152 g, 3 h 51 min.
+- **Print.** Plates 1–3: 157 g, 4 h 09 min (A1 mini, 0.4 nozzle, 0.2 layers, no supports); one-piece parts for a 220 mm
+  bed: 156 g, 3 h 58 min.
 
 ### Not reachable in the lid
 
@@ -132,10 +140,10 @@ The figures here are redrawn from this version's parts:
 None of the original meshes is used. The lid is a new hollow part that follows the original's outline (corner radii
 halved to 3 mm, no chamfers) and parting surface, with a flat top, hinge pads and bosses, panel bosses, ribs, openings
 for the ports in the left end wall, the hinge mortises and a snap lip on a thinned zone of the front wall; the bezel panel is new
-(window, rim, camera and microphone holes, the port bay and a finger slot, countersunk holes, snap bumps). The tray is a new thin shell
+(window, rim, camera and microphone holes, the port bay's opening with its ledge, countersunk holes, snap bumps). The tray is a new thin shell
 with the original tray's outline (r 3), parting, keyboard room (as the opening of a deck flush with the rim) and rear
-opening, plus hinge pads and bosses and a recess + groove for the snap lip. New parts: 4 hinge covers, the splice plates
-and the test coupons. The original's knob hinge, label and Palma-specific openings are not used.
+opening, plus hinge pads and bosses and a recess + groove for the snap lip. New parts: 4 hinge covers, the port bay's cover,
+the splice plates and the test coupons. The original's knob hinge, label and Palma-specific openings are not used.
 
 ## Sources of measured dimensions
 
