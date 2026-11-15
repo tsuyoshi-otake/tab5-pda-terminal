@@ -104,14 +104,20 @@ def inner_view(ax, lid, panel, kit):
     if B.PORT_BAY:      # the ports on the Tab5's left edge, seen through the port bay, and the plugs coming in
         label = {"usb_a": "USB-A", "usb_c": "USB-C", "jack": "イヤホン", "grove": "Grove"}
         xe = B.KIT_FACE_X
+        straight = {k for o in B.port_openings() for k in o["keys"]}
         for p in B.KIT_PORTS:
             y, w = -p["y"], p["plug"][0] * 0.6
             ax.plot([xe - 0.8, xe - 0.8], [y - w / 2, y + w / 2], color=INK, lw=3.0, solid_capstyle="butt", zorder=6)
             ax.text(xe - 3.0, y, label[p["key"]], fontsize=9, color=INK, ha="right", va="center", zorder=7)
-            ax.add_patch(FancyArrowPatch((-112.0, y), (-101.5, y), arrowstyle="-|>", mutation_scale=10,
-                                         color=RED, lw=1.2, zorder=8))
-        ax.text(-113.0, 49.0, "左端の穴からプラグを入れ、カバーを外した\nポートベイに指を入れて端子まで押し込む\n（挿したままカバーを戻せる）", fontsize=9.5,
-                color=RED, va="bottom")
+            if p["key"] in straight:
+                ax.add_patch(FancyArrowPatch((-112.0, y), (-101.5, y), arrowstyle="-|>", mutation_scale=10,
+                                             color=RED, lw=1.2, zorder=8))
+        if isinstance(B.PORT_BAY["slot"], str):
+            ax.text(-113.0, 50.5, "USB-C：左端の穴からまっすぐ挿す\nほか：カバーを外したベイで挿し、\n"
+                    "ケーブルを同じ穴から出す", fontsize=9.5, color=RED, va="bottom")
+        else:
+            ax.text(-113.0, 49.0, "左端の穴からプラグを入れ、カバーを外した\nポートベイに指を入れて端子まで押し込む\n（挿したままカバーを戻せる）",
+                    fontsize=9.5, color=RED, va="bottom")
         _, _, ya, yb = B.port_bay_rect()
         note(ax, (-89.0, -yb + 4.5), "ポートベイ\n（カバーを外したところ）", (-112.0, -61.0), fs=9.5)
     else:

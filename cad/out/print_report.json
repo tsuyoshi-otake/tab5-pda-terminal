@@ -2,16 +2,16 @@
  "plate0_test_coupons.3mf": {
   "warnings": [],
   "ok": true,
-  "time": "27m 58s",
-  "grams": 12.76,
-  "metres": 4.27825
+  "time": "26m 1s",
+  "grams": 11.13,
+  "metres": 3.7319
  },
  "plate1_lid.3mf": {
   "warnings": [],
   "ok": true,
-  "time": "1h 54m 53s",
-  "grams": 70.69,
-  "metres": 23.7016
+  "time": "1h 55m 52s",
+  "grams": 71.67,
+  "metres": 24.031
  },
  "plate2_tray.3mf": {
   "warnings": [],
@@ -30,9 +30,9 @@
  "large/plate1_lid.3mf": {
   "warnings": [],
   "ok": true,
-  "time": "1h 50m 43s",
-  "grams": 70.24,
-  "metres": 23.55023
+  "time": "1h 51m 1s",
+  "grams": 71.21,
+  "metres": 23.87656
  },
  "large/plate2_tray.3mf": {
   "warnings": [],
@@ -48,36 +48,36 @@
   "grams": 23.72,
   "metres": 7.95449
  },
- "large_total_g": 154.53,
- "large_total_min": 231,
- "total_g": 155.82000000000002,
- "total_min": 242,
+ "large_total_g": 155.5,
+ "large_total_min": 232,
+ "total_g": 156.8,
+ "total_min": 243,
  "nozzle_check": {
   "worst_spot_mm2": 0.12955531492842257,
   "wall_gaps": 0,
-  "end_wall_bridge_strips_mm2": 16.93787369764035
+  "end_wall_bridge_strips_mm2": 3.886297934523528
  },
- "lid_g": 218.82,
+ "lid_g": 219.77,
  "base_g": 63.269999999999996,
  "lid_cg": [
-  2.5532483099405123,
-  2.267066310269781,
-  21.96115059330811
+  2.106199335709537,
+  2.2754369260014333,
+  21.97079753488291
  ],
  "pivot_y": 53.0,
  "table_contact_deg": 143.1,
  "table_limit": 143,
- "keyboard_min_g": 155.0917434091143,
+ "keyboard_min_g": 155.950362801648,
  "hinge_torque_nm": [
   0.1176,
   0.1568,
   0.196
  ],
- "lid_moment_nm": 0.11137316102537018,
+ "lid_moment_nm": 0.11183863744963984,
  "springback_push_n": [
-  0.061866259062392646,
-  0.4513347141046182,
-  0.8408031691468438
+  0.05724155539354349,
+  0.446710010435769,
+  0.8361784654779947
  ],
  "snap_k": 19.066341835916937,
  "snap_hold_n": 12.98710900506058,
@@ -88,8 +88,8 @@
   10.220127749616871
  ],
  "open_force_n": [
-  5.782519559250247,
-  13.438443719165198
+  5.777894855581398,
+  13.433819015496349
  ],
  "keyboard_for_one_hand_g": 325.00782627370705
 }

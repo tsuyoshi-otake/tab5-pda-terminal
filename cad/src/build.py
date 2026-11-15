@@ -936,11 +936,19 @@ def port_lanes():
 
 
 def port_openings():
-    """The opening(s) in the lid's left end wall: [dict(y0, y1, d0, d1)]. With PORT_BAY['slot'] one rectangle, centred
-    on the end face, over every plug's lane; else one per (merged) lane."""
+    """The opening(s) in the lid's left end wall: [dict(y0, y1, d0, d1)]. PORT_BAY['slot'] a port's key: one rectangle,
+    that port's plug + clr in line with it; True: one rectangle, centred on the end face, over every plug's lane; False:
+    one per (merged) lane."""
     lanes = port_lanes()
-    if not PORT_BAY["slot"]:
+    slot = PORT_BAY["slot"]
+    if not slot:
         return lanes
+    if isinstance(slot, str):
+        p, g = next(p for p in KIT_PORTS if p["key"] == slot), PORT_BAY
+        w, h, _ = p["plug"]
+        lane = next(l for l in lanes if slot in l["keys"])
+        return [dict(y0=p["y"] - w / 2 - g["clr"], y1=p["y"] + w / 2 + g["clr"], d0=p["d"] - h / 2 - g["clr"],
+                     d1=min(p["d"] + h / 2 + g["clr"], lane["d1"]), keys=[slot], relieved=lane["relieved"])]
     yc = (Y_BACK - BACK_OLD_Y) / 2                         # the middle of the end face
     h = max(max(yc - l["y0"], l["y1"] - yc) for l in lanes)
     return [dict(y0=yc - h, y1=yc + h, d0=min(l["d0"] for l in lanes), d1=max(l["d1"] for l in lanes),
@@ -1020,14 +1028,16 @@ def build_port_cover(ribs=True):
 
 def port_plugs(cable=True):
     """{key: plug} for the checks: each plug of KIT_PORTS in its port, its body from the Tab5's face outward (a cylinder
-    for a round one), and a Ø4 cable from its tail out past the end wall."""
+    for a round one), and, for a plug in line with an end-wall opening, a Ø4 cable from its tail straight out past the
+    end wall (the others' cables bend over to the opening in the bay)."""
     out = {}
+    straight = {k for o in port_openings() for k in o["keys"]}
     for p in KIT_PORTS:
         w, h, L = p["plug"]
         zc = KIT_Z0 + p["d"]
         body = (cyl_x(w / 2, KIT_FACE_X - L, KIT_FACE_X, p["y"], zc) if p.get("round") else
                 box(KIT_FACE_X - L, KIT_FACE_X, p["y"] - w / 2, p["y"] + w / 2, zc - h / 2, zc + h / 2))
-        if cable:
+        if cable and p["key"] in straight:
             body = body + cyl_x(2.0, LID_END_X - 6.0, KIT_FACE_X - L + 0.5, p["y"], zc)
         out[p["key"]] = body
     return out
@@ -1055,7 +1065,9 @@ def port_bay_log(plugs, lid, panel, tray, kit):
         names = " + ".join(next(p["name"] for p in KIT_PORTS if p["key"] == k) for k in o["keys"])
         log(f"    end-wall opening for {names}: y {o['y0']:.2f}..{o['y1']:.2f}, {o['d0']:.2f}..{o['d1']:.2f} mm behind the "
             f"screen face ({o['y1'] - o['y0']:.1f} x {o['d1'] - o['d0']:.1f} mm)"
-            + (f", centred on the end face (y {(Y_BACK - BACK_OLD_Y) / 2:.2f})" if g["slot"] else ""))
+            + (f", centred on the end face (y {(Y_BACK - BACK_OLD_Y) / 2:.2f})" if g["slot"] is True else
+               f", in line with the port; the other plugs go in through the bay and their cables out through it"
+               if isinstance(g["slot"], str) else ""))
     for a, b in zip(ops, ops[1:]):
         log(f"    post between openings: {b['y0'] - a['y1']:.2f} mm (y {a['y1']:.2f}..{b['y0']:.2f})")
     for l in port_lanes():
@@ -1068,9 +1080,15 @@ def port_bay_log(plugs, lid, panel, tray, kit):
         bb = pl.bounding_box()
         col = box(bb[0] + 0.5, bb[3] - 0.5, p["y"] - 0.3, p["y"] + 0.3, bb[5], 60.0) ^ lid    # the ceiling above it
         gap = col.bounding_box()[2] - bb[5] if not col.is_empty() else float("nan")
+        straight = any(p["key"] in o["keys"] for o in ops)
+        tail = KIT_FACE_X - L
         log(f"    {p['name']}: y {p['y']:g}, {p['d']:.2f} behind the screen face; room for a plug "
             f"{'Ø' + format(w, 'g') if p.get('round') else format(w, 'g') + ' x ' + format(h, 'g')} mm, {L:g} long out of "
-            f"the Tab5 ({gap:.2f} mm under the ceiling), cable out through the end wall")
+            f"the Tab5 ({gap:.2f} mm under the ceiling), "
+            + ("cable straight out through the end wall" if straight else
+               f"cable {tail - xi:.1f} mm from the plug's tail to the end wall to bend over "
+               f"{min(0.0 if o['y0'] <= p['y'] <= o['y1'] else min(abs(p['y'] - o['y0']), abs(p['y'] - o['y1'])) for o in ops):.1f}"
+               " mm to the opening"))
         for part, name in ((lid, "lid"), (panel, "panel")):
             v = (plugs[p["key"]] ^ part).volume()
             assert v < 0.01, (p["key"], name, v)
@@ -1088,6 +1106,12 @@ def port_bay_log(plugs, lid, panel, tray, kit):
     press = (build_port_cover() ^ panel).volume()
     log(f"    cover's crush ribs pressed into the panel: {press:.2f} mm3 (nothing else touches)")
     assert 0.0 < press < 2.0, press
+    if isinstance(g["slot"], str):     # the others go in through the panel's opening (inside its ledge)
+        ix0, ix1 = x0 + c["ledge"], x1 - c["ledge"]
+        lmax = max(p["plug"][2] for p in KIT_PORTS if p["key"] != g["slot"])
+        log(f"    plugs in through the bay: {ix1 - ix0:.1f} mm across inside the ledge; a longer plug goes in tail first under "
+            f"the panel's left edge, up to {ix1 - xi:.1f} mm (the longest here {lmax:g})")
+        assert lmax < ix1 - xi
     ys = sorted((p["y"] - p["plug"][0] / 2, p["y"] + p["plug"][0] / 2) for p in KIT_PORTS)
     log(f"    all four plugged at once: {min(b[0] - a[1] for a, b in zip(ys, ys[1:])):.2f} mm between the nearest two plugs")
 

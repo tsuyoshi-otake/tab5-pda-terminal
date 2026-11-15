@@ -1,22 +1,22 @@
 {
  "3mf/bambu_a1mini/bambu_plate0_test_coupons.3mf": {
   "objects": 5,
-  "sha256": "5a6eb8d6203731a544b4cd8fc06e00f095def9cc6bb46c230e413df606e2e418",
+  "sha256": "0e26ff69ded9982dfe97fe02eca61774dd426e18eea111a25518b66d23e58545",
   "volumes": [
+   890.6,
    1733.67,
    2062.82,
-   2225.59,
    2483.13,
    2980.98
   ]
  },
  "3mf/bambu_a1mini/bambu_plate1_lid.3mf": {
   "objects": 3,
-  "sha256": "8ac870ad04c262b4f9c141664ba1ed63b12b7fb5a3326689a5bcf325fee77243",
+  "sha256": "9b47813e11f12bc62af54f4c64e6002efcaf25619a9584fab1540d898f8caae7",
   "volumes": [
    1120.0,
    12115.08,
-   48064.01
+   48879.46
   ]
  },
  "3mf/bambu_a1mini/bambu_plate2_tray.3mf": {
@@ -43,9 +43,9 @@
  },
  "3mf/large/plate1_lid.3mf": {
   "objects": 1,
-  "sha256": "21e7370c19c08e2e8566957eacb4337592b1bb95ddd79d967f908bd6cded979c",
+  "sha256": "a98f270e745dc7a663f2ca7e2ad4fe3891f70f104183e6a170dffa15c03ee30b",
   "volumes": [
-   61351.05
+   62166.5
   ]
  },
  "3mf/large/plate2_tray.3mf": {
@@ -65,22 +65,22 @@
  },
  "3mf/plate0_test_coupons.3mf": {
   "objects": 5,
-  "sha256": "0159b28a0adc473ba5079bd64bdd8786fc33550bacd032328fc6260f3ff1df45",
+  "sha256": "13595620fb6444f9f1d47c0b80d27eea43040f2034a42ba0524469e97136c7bb",
   "volumes": [
+   890.6,
    1733.67,
    2062.82,
-   2225.59,
    2483.13,
    2980.98
   ]
  },
  "3mf/plate1_lid.3mf": {
   "objects": 3,
-  "sha256": "f543aff6a55436e177ece0522495f3f10f594e0344776c7231b65cc2db1d640b",
+  "sha256": "667dfa66d3421e3b3401dcb3228e713e4781135ccc3efd1442a917775b54b57b",
   "volumes": [
    1120.0,
    12115.08,
-   48064.01
+   48879.46
   ]
  },
  "3mf/plate2_tray.3mf": {
@@ -177,18 +177,18 @@
   "bbox": [
    [
     -101.0,
-    -30.0,
-    8.872
+    -11.5,
+    9.946
    ],
    [
     -92.0,
-    36.5,
+    11.5,
     29.8
    ]
   ],
-  "faces": 120,
-  "sha256": "1f61589a09db90c169c8db4626bec7cfbc6acface46be81667ced601b19c2ffe",
-  "volume": 2225.59
+  "faces": 66,
+  "sha256": "13630111d1fe7e50674ef6feb58de6a346037be4f5e17c5ad16f3c250a09f2ee",
+  "volume": 890.6
  },
  "out/coupons/orientation.json": {
   "sha256": "70901b116f973e93bfd0c1cddb047c985958170faf883945f29ebf715159cc59"
@@ -206,9 +206,9 @@
     29.8
    ]
   ],
-  "faces": 4986,
-  "sha256": "ffc4e8a14099848fcb0824ede068d1bea8b3a18f200eb1825636428b51e3ac98",
-  "volume": 61351.03
+  "faces": 4952,
+  "sha256": "7543b4832b2412e3343f6608882df4dba5eb7cc3d9ef1e8b84109bd47c0ea43d",
+  "volume": 62166.48
  },
  "out/display_panel_kit.stl": {
   "bbox": [
@@ -291,9 +291,9 @@
     29.8
    ]
   ],
-  "faces": 3446,
-  "sha256": "11ba91376a8f18e6793abb672875759924fda80638cbc160103f29e289450099",
-  "volume": 48064.0
+  "faces": 3412,
+  "sha256": "1efacbc4c02a94ae2ac7dfd71d480a5569111226e42f3a6ccedcf18a47f23d46",
+  "volume": 48879.45
  },
  "out/split/panel_A_right.stl": {
   "bbox": [
@@ -444,9 +444,9 @@
     29.8
    ]
   ],
-  "faces": 4986,
-  "sha256": "ffc4e8a14099848fcb0824ede068d1bea8b3a18f200eb1825636428b51e3ac98",
-  "volume": 61351.03
+  "faces": 4952,
+  "sha256": "7543b4832b2412e3343f6608882df4dba5eb7cc3d9ef1e8b84109bd47c0ea43d",
+  "volume": 62166.48
  },
  "out/whole/panel.stl": {
   "bbox": [
