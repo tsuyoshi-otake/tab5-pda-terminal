@@ -1937,7 +1937,7 @@ def main_kit():
     log(f"  tray front wall left behind the recess {-LID_INNER_Y - recess_back:.2f} mm, behind the groove "
         f"{-LID_INNER_Y - recess_back - (l['bump'] - l['clr'] + 0.05):.2f} mm")
 
-    log(f"== hinge motion (lid + kit + {'panel + ' if SHELL else ''}covers rotated about the real axis y={HINGE_AXIS_Y:.2f}, z={Z_PART}; tray fixed)")
+    log(f"== hinge motion (lid + kit{' + panel' if SHELL else ''}{' + covers' if lid_cov else ''} rotated about the real axis y={HINGE_AXIS_Y:.2f}, z={Z_PART}; tray fixed)")
     lidset = lid + kit + union(lid_cov) + (panel if SHELL else M())
     traset = tray + union(tray_cov)
     hits = []

@@ -35,7 +35,7 @@ Each sliced plate (0.4 mm nozzle, 0.2 mm layers, Arachne walls) compared with th
 | `plate2_tray.3mf` | tray_A_left | 1 spot(s), up to 0.13 mm², in 1 layer(s) (z 8.2 mm on the bed) |
 | `plate2_tray.3mf` | tray_B_main | 1 spot(s), up to 0.06 mm², in 1 layer(s) (z 8.2 mm on the bed) |
 
-Largest spot: 0.13 mm² in a single 0.2 mm layer; gaps inside thin walls: 0. The strips at the end-wall openings (up to 16.9 mm²): the layer that closes an opening is a bridge across it (56.5 mm long), and the slicer lays it inside the 2 mm wall, leaving the outer 0.3 mm of both faces to the layer above: a faint line along the opening's edge on the lid's end face, and the bridge may sag a little in the middle (cosmetic; the test coupon coupon_port_end shows how your printer does it). Nothing a part depends on: the hinge covers' crush ribs start 0.25 mm high, under what the nozzle adds to a wall, so the lowest of the four layers they span is left out and the upper three print; the rest are specks where a rounded edge or the tray's sloping rim runs out in one layer.
+Largest spot: 0.13 mm² in a single 0.2 mm layer; gaps inside thin walls: 0. The strips at the end-wall openings (up to 16.9 mm²): the layer that closes an opening is a bridge across it (56.5 mm long), and the slicer lays it inside the 2 mm wall, leaving the outer 0.3 mm of both faces to the layer above: a faint line along the opening's edge on the lid's end face, and the bridge may sag a little in the middle (cosmetic; the test coupon coupon_port_end shows how your printer does it). Nothing a part depends on: they are specks where a rounded edge or the tray's sloping rim runs out in one layer.
 
 ## Wall thickness
 

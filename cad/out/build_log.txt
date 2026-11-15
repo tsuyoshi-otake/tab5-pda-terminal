@@ -107,7 +107,7 @@
   peak strain 0.33 % (0.37 % if the lid is held back and the lip bends by the whole bump; x 19.8, z 8.0, 1.10 thick; across the print layers: keep < 0.5 %), spread over the zone, no slit ends; an outward pull of ~17 N at the bump reaches ~25 MPa; to open ~17.2 N at the lip (+ the hinges' friction), to close ~13.5 N
   the bump's faces as built stand at 44 deg (closing ramp) and 49 deg (catch face) to the closing direction: its profile is rooted 0.3 mm inside the lip, which steepens them from the 30 / 35 deg of LATCH. tools/snap_sim.py closes the built lid on the built tray (out/snap_sim.md)
   tray front wall left behind the recess 1.95 mm, behind the groove 1.50 mm
-== hinge motion (lid + kit + panel + covers rotated about the real axis y=54.15, z=12.85; tray fixed)
+== hinge motion (lid + kit + panel rotated about the real axis y=54.15, z=12.85; tray fixed)
   no collision with the tray from 0 to 180 deg
   on a table the lid reaches the table at 143.1 deg (opening limit)
   no covers: the leaves sit flush in a 2.05 mm mortise in the back face, axis 1.15 mm outside it

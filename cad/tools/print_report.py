@@ -311,9 +311,11 @@ def nozzle_section(report, checked):
                "inside the 2 mm wall, leaving the outer 0.3 mm of both faces to the layer above: a faint line along the "
                "opening's edge on the lid's end face, and the bridge may sag a little in the middle (cosmetic; the test "
                "coupon coupon_port_end shows how your printer does it). " if bridged else "")
-            + ("Nothing a part depends on: the hinge covers' crush ribs start 0.25 mm high, under what the nozzle adds "
-               "to a wall, so the lowest of the four layers they span is left out and the upper three print; the rest are "
-               "specks where a rounded edge or the tray's sloping rim runs out in one layer." if worst < 0.6 and gaps == 0 else
+            + ("Nothing a part depends on: "
+               + ("the hinge covers' crush ribs start 0.25 mm high, under what the nozzle adds to a wall, so the lowest of "
+                  "the four layers they span is left out and the upper three print; the rest are "
+                  if any(n.startswith("hinge_cover") for n, _ in LID_PARTS + BASE_PARTS) else "they are ")
+               + "specks where a rounded edge or the tray's sloping rim runs out in one layer." if worst < 0.6 and gaps == 0 else
                "**Check these before printing.**"), ""]
 
 
