@@ -209,7 +209,7 @@ PANEL_SLOT = dict(out=11.0, end=3.0, r=0.75)  # finger slot through the panel be
 PANEL_GUARD = None
 PANEL_SCREWS = ((-91.0, -37.5), (91.0, -37.5), (-91.0, 46.0), (91.0, 46.0))      # the four corners, clear of the housings
 # Pillars: the same columns from the ceiling without a screw. The panel's back rests on them right of the Tab5, front
-# and back (clear of the lid's seam at x 73; their gussets stop 1 mm short of it), so it cannot be pushed in there. The left of the Tab5 is the port bay.
+# and back (clear of the lid's seam at x 72; their gussets stop 0.4 mm short of it), so it cannot be pushed in there. The left of the Tab5 is the port bay.
 PANEL_PILLARS = ((78.5, -39.5), (78.5, 40.0))
 # Ribs on the panel's screw bosses (Ø6 columns hanging 6.4-8.6 mm from the lid's ceiling): toward a wall closer than
 # `tie` a rib runs into the wall (full height), elsewhere a gusset `len` long (its edge slopes from the boss's foot to
@@ -246,7 +246,7 @@ SPLIT_JOINT = "straight" if PD_MOUNT == "kit" else "dovetail"
 SPLICE = dict(clr=0.3,                # per side (0.15 printed too tight: the plates print flat, with elephant foot)
               tray=dict(t=WALL / 2, x0=-10.0, x1=10.0, y=((-42.4, 42.4),)),
               lid=dict(t=WALL / 2, x0=-8.0, x1=8.0, y=((-35.0, 35.0),)),
-              panel=dict(t=PANEL_T / 2, x0=-4.0, x1=8.0, y=((-42.0, 42.0),)))   # >= 1.5 mm from edges / slots;
+              panel=dict(t=PANEL_T / 2, x0=-3.0, x1=9.0, y=((-42.0, 42.0),)))   # >= 1.5 mm from edges / slots;
                                                     # kit: x0 keeps B's pocket 0.5 mm clear of the rim (x 68.2)
 # USB-C at the left end: "direct" = a straight cable into the kit's port through the end-wall opening (default);
 # lid A also comes for a screw-ear panel-mount female (USB_PM_*), at y = USB_PM_Y, so the end can be swapped later.
@@ -402,13 +402,12 @@ KB_SW_W = 8.0                 # [A] TODO
 KB_SW_BOTTOM_Z = 5.5          # [A] TODO notch bottom (wall top there is ~z 9.6)
 
 # A1 mini splitting
-SPLIT_X_LID = 73.0 if PD_MOUNT == "kit" else -72.0   # kit: the right end (the port bay at the left stays whole), in
+SPLIT_X_LID = 72.0 if PD_MOUNT == "kit" else -72.0   # kit: the right end (the port bay at the left stays whole), in
                                                       # line with the panel's seam (one line from the screen side);
-                                                      # clear of the hinge seats and of the pillars (x 75.5..81.5);
-                                                      # lid B 174 mm (the limit)
+                                                      # clear of the hinge seats and of the pillars (x 75.5..81.5)
 SPLIT_X_TRAY = -72.0          # clear of tray hinge ears (|x| 46..61) and rear opening (x 72.9..89.1)
-SPLIT_X_PANEL = 73.0 if PD_MOUNT == "kit" else -75.0  # kit: the right end, in line with the lid's seam, clear of the
-                                                      # camera hole; panel B 171.8 mm
+SPLIT_X_PANEL = 72.0 if PD_MOUNT == "kit" else -75.0  # kit: the right end, in line with the lid's seam, clear of the
+                                                      # camera hole; panel B 170.8 mm
 
 
 def piece_names(kind):

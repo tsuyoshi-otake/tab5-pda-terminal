@@ -1364,7 +1364,7 @@ def panel_boss_keepout():
     and the USB-C plug path."""
     w, c = PANEL_RIM["w"] + 0.5, SPLICE["clr"] + 0.5
     g = SPLICE["lid"]
-    out = [(KIT_X0 - w, KIT_X1 + w, KIT_Y0 - w, KIT_Y1 + w), (SPLIT_X_LID - 1.0, SPLIT_X_LID + 1.0, -BIG, BIG)]
+    out = [(KIT_X0 - w, KIT_X1 + w, KIT_Y0 - w, KIT_Y1 + w), (SPLIT_X_LID - 0.4, SPLIT_X_LID + 0.4, -BIG, BIG)]
     out += [(SPLIT_X_LID + g["x0"] - c, SPLIT_X_LID + g["x1"] + c, ya - c, yb + c) for ya, yb in g["y"]]
     if PORT_BAY:
         y0, y1 = port_bay_span()

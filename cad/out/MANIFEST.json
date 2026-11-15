@@ -12,11 +12,11 @@
  },
  "3mf/bambu_a1mini/bambu_plate1_lid.3mf": {
   "objects": 3,
-  "sha256": "bcaf6187e7c746a3b3c8f97fe43fea603de94d29a3f084b797a85b0693b3b576",
+  "sha256": "9b47813e11f12bc62af54f4c64e6002efcaf25619a9584fab1540d898f8caae7",
   "volumes": [
    1120.0,
-   11827.15,
-   49147.01
+   12115.08,
+   48879.46
   ]
  },
  "3mf/bambu_a1mini/bambu_plate2_tray.3mf": {
@@ -30,12 +30,12 @@
  },
  "3mf/bambu_a1mini/bambu_plate3_panel.3mf": {
   "objects": 4,
-  "sha256": "3cd0f1bcf002523ab931de0d471be9ec60ef91ac374ba69c23ae022cf381ed40",
+  "sha256": "ab9d45b125e9cacd182a6e6cb7a4b22850c6e4f83b0dd3d43323c3cc6d18a57a",
   "volumes": [
    806.4,
    2210.97,
-   3340.9,
-   12593.73
+   3425.38,
+   12509.25
   ]
  },
  "3mf/bambu_a1mini/tab5_process_a1mini_04.json": {
@@ -43,9 +43,9 @@
  },
  "3mf/large/plate1_lid.3mf": {
   "objects": 1,
-  "sha256": "7d189dd2f7d259b2c45947e4fc07365da8c52f508cdf25da682bcce0c95f08ef",
+  "sha256": "a98f270e745dc7a663f2ca7e2ad4fe3891f70f104183e6a170dffa15c03ee30b",
   "volumes": [
-   62146.12
+   62166.5
   ]
  },
  "3mf/large/plate2_tray.3mf": {
@@ -76,11 +76,11 @@
  },
  "3mf/plate1_lid.3mf": {
   "objects": 3,
-  "sha256": "cf0ef2ff89a4c10311ad050d01217e59d380e0a01ce26a22b61a5541257f453b",
+  "sha256": "667dfa66d3421e3b3401dcb3228e713e4781135ccc3efd1442a917775b54b57b",
   "volumes": [
    1120.0,
-   11827.15,
-   49147.01
+   12115.08,
+   48879.46
   ]
  },
  "3mf/plate2_tray.3mf": {
@@ -94,12 +94,12 @@
  },
  "3mf/plate3_panel.3mf": {
   "objects": 4,
-  "sha256": "833798ca27986e3e08bb3973b9a0ba2ab3f8eb12be5595ef67b80607cfa1bbad",
+  "sha256": "9e8c2f8913f7a1886a0251a80993a81376d4862620fcde305dd4bc0d2b3329ec",
   "volumes": [
    806.4,
    2210.97,
-   3340.9,
-   12593.73
+   3425.38,
+   12509.25
   ]
  },
  "out/assembly.json": {
@@ -207,8 +207,8 @@
    ]
   ],
   "faces": 4952,
-  "sha256": "22e69ee721be0cb1872edb728b771182c70159f4d915e662b276c104e85bcdb9",
-  "volume": 62146.1
+  "sha256": "7543b4832b2412e3343f6608882df4dba5eb7cc3d9ef1e8b84109bd47c0ea43d",
+  "volume": 62166.48
  },
  "out/display_panel_kit.stl": {
   "bbox": [
@@ -264,7 +264,7 @@
  "out/split/lid_A_right.stl": {
   "bbox": [
    [
-    73.0,
+    72.0,
     -46.5,
     7.942
    ],
@@ -275,8 +275,8 @@
    ]
   ],
   "faces": 1628,
-  "sha256": "c1cd5d178c2e1d1478c4a78bf04f89f3785e456000897053f30cf08b932878e7",
-  "volume": 11827.15
+  "sha256": "b52d81267766bd8e00b5828d917b2aa59164e14febbc7bcb15c39f12dcdb19bd",
+  "volume": 12115.08
  },
  "out/split/lid_B_main.stl": {
   "bbox": [
@@ -286,19 +286,19 @@
     5.342
    ],
    [
-    73.0,
+    72.0,
     53.0,
     29.8
    ]
   ],
   "faces": 3412,
-  "sha256": "1706b75e269760378389be9ca220c4a2373909f6d250f926ae780613dc917af4",
-  "volume": 49147.0
+  "sha256": "1efacbc4c02a94ae2ac7dfd71d480a5569111226e42f3a6ccedcf18a47f23d46",
+  "volume": 48879.45
  },
  "out/split/panel_A_right.stl": {
   "bbox": [
    [
-    73.0,
+    72.0,
     -44.3,
     14.0
    ],
@@ -309,8 +309,8 @@
    ]
   ],
   "faces": 712,
-  "sha256": "7172183169e3aa475f0ae8d55acbcfe3d9dc8c77eed905576b86e1e272420d3e",
-  "volume": 3340.9
+  "sha256": "b1e29d7e4925a608bc5dc42827eea36f54a9ff04025def5ed9a31451ea1b36cc",
+  "volume": 3425.38
  },
  "out/split/panel_B_main.stl": {
   "bbox": [
@@ -320,30 +320,30 @@
     14.0
    ],
    [
-    73.0,
+    72.0,
     51.25,
     17.6
    ]
   ],
   "faces": 2426,
-  "sha256": "1c7c6807226a0684e0802a4ef61540837a8d649f4a9222458a1b6edc4b29b332",
-  "volume": 12593.74
+  "sha256": "678a0b82d2b77699cbff6c7164385501f41fa0db61ba0510c62c1680fa000a92",
+  "volume": 12509.26
  },
  "out/split/splice/lid_splice_1.stl": {
   "bbox": [
    [
-    65.0,
+    64.0,
     -35.0,
     27.8
    ],
    [
-    81.0,
+    80.0,
     35.0,
     28.8
    ]
   ],
   "faces": 12,
-  "sha256": "55d3894a8e87d2ff250cd506eb92c7a18bd4c1e34b05205c2709c82b2108649f",
+  "sha256": "ea3f7c357d043eb33995129dc599a6a955371915eee404f6da29d6b1b234d50f",
   "volume": 1120.0
  },
  "out/split/splice/panel_splice_1.stl": {
@@ -445,8 +445,8 @@
    ]
   ],
   "faces": 4952,
-  "sha256": "22e69ee721be0cb1872edb728b771182c70159f4d915e662b276c104e85bcdb9",
-  "volume": 62146.1
+  "sha256": "7543b4832b2412e3343f6608882df4dba5eb7cc3d9ef1e8b84109bd47c0ea43d",
+  "volume": 62166.48
  },
  "out/whole/panel.stl": {
   "bbox": [
