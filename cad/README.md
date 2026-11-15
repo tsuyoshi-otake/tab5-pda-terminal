@@ -85,9 +85,10 @@ The Tab5's left edge (its ports) is 37.8 mm inside the lid's left end wall. That
   tapered crush ribs on the plate's edges as on the hinge covers: 0.2 mm out at the back, 0.3 at the face, so 0.1 mm
   into the opening's wall when pressed home. Tight or loose: change `rib_h` and reprint the cover. It goes back on with
   the plugs in; the power button is in the bay too, so the cover comes off to press it.
-- **End wall**: an opening per plug (`port_lanes`): the plug's size + 0.5 mm a side, merged where two come closer than
-  2 mm. USB-A + USB-C: y −23.5…6.5, 4.1…13.0 mm behind the screen face; headset: y 8.75…17.25, 4.75…13.0; Grove:
-  y 20.5…31.5, 6.3…12.2. Posts of 2.25 and 3.25 mm between them.
+- **End wall**: one opening (`port_openings`, `PORT_BAY["slot"]`) over every plug's lane (the plug's size + 0.5 mm a
+  side, `port_lanes`), centred on the end face: y −25.0…31.5, 4.1…13.0 mm behind the screen face (56.5 × 8.9 mm).
+  In print (lid top down) its long edge is a 56.5 mm bridge in the 2 mm wall; it may sag a little. A test coupon of the
+  end wall (`coupon_port_end`, plate 0) shows how the printer does it and whether the plugs pass.
 - **Ceiling**: nothing hangs in the bay (no guide ribs, no pillars: fingers need the room). The ports sit near the
   Tab5's back, so a 16 × 8 USB-A overmold and a Ø7.5 headset plug stand 0.4–0.6 mm above it; over those lanes (and the
   USB-C one between them) the ceiling is thinned from inside to 1.2 mm, end wall to Tab5, which leaves them 0.4 and
@@ -115,8 +116,8 @@ to the layer above there (the report lists them): at worst a faint line along th
   (95 g up to 120°). Not weighed.
 - **Snap.** Simulated (`out/snap_sim.md`): 10 N to close and 13 N of hold with the lid where it was drawn, 6 N of hold
   with the lid 0.2 mm forward, none at 0.4 mm.
-- **Print.** Plates 1–3: 157 g, 4 h 09 min (A1 mini, 0.4 nozzle, 0.2 layers, no supports); one-piece parts for a 220 mm
-  bed: 156 g, 3 h 58 min.
+- **Print.** Plates 1–3: 157 g, 4 h 08 min (A1 mini, 0.4 nozzle, 0.2 layers, no supports); one-piece parts for a 220 mm
+  bed: 156 g, 3 h 57 min.
 
 ### Not reachable in the lid
 

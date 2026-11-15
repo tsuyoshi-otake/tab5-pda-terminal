@@ -935,12 +935,24 @@ def port_lanes():
     return out
 
 
+def port_openings():
+    """The opening(s) in the lid's left end wall: [dict(y0, y1, d0, d1)]. With PORT_BAY['slot'] one rectangle, centred
+    on the end face, over every plug's lane; else one per (merged) lane."""
+    lanes = port_lanes()
+    if not PORT_BAY["slot"]:
+        return lanes
+    yc = (Y_BACK - BACK_OLD_Y) / 2                         # the middle of the end face
+    h = max(max(yc - l["y0"], l["y1"] - yc) for l in lanes)
+    return [dict(y0=yc - h, y1=yc + h, d0=min(l["d0"] for l in lanes), d1=max(l["d1"] for l in lanes),
+                 keys=[k for l in lanes for k in l["keys"]], relieved=any(l["relieved"] for l in lanes))]
+
+
 def port_bay_cuts():
-    """The lid's side of the port bay: the openings in the left end wall, everything below the ceiling cleared from the
-    end wall to the Tab5 across the bay, and the ceiling thinned over the lanes that need it."""
+    """The lid's side of the port bay: the opening(s) in the left end wall, everything below the ceiling cleared from
+    the end wall to the Tab5 across the bay, and the ceiling thinned over the lanes that need it."""
     g, (a, b) = PORT_BAY, LID_TOP[:2]
     xi = LID_END_X + SHELL_WALL
-    cuts = [box(LID_END_X - 1.0, xi + 0.5, l["y0"], l["y1"], KIT_Z0 + l["d0"], KIT_Z0 + l["d1"]) for l in port_lanes()]
+    cuts = [box(LID_END_X - 1.0, xi + 0.5, o["y0"], o["y1"], KIT_Z0 + o["d0"], KIT_Z0 + o["d1"]) for o in port_openings()]
     cuts.append(box(xi, KIT_FACE_X + 1.0, *port_bay_span(), -10.0, 60.0) ^ half_space(a - SHELL_CEIL, b, False))
     cuts += [box(xi - 0.01, KIT_FACE_X + 1.0, l["y0"], l["y1"], -10.0, 60.0) ^ half_space(a - g["skin"], b, False)
              for l in port_lanes() if l["relieved"]]
@@ -958,10 +970,10 @@ def port_bay_rect():
 
 
 def port_bay_span():
-    """(y0, y1) kept clear inside the lid: the opening and every plug's lane."""
+    """(y0, y1) kept clear inside the lid: the panel's opening and the end wall's."""
     _, _, y0, y1 = port_bay_rect()
-    lanes = port_lanes()
-    return min(y0, lanes[0]["y0"]), max(y1, max(l["y1"] for l in lanes))
+    ops = port_openings()
+    return min(y0, min(o["y0"] for o in ops)), max(y1, max(o["y1"] for o in ops))
 
 
 def rect_cs(x0, x1, y0, y1, r):
@@ -1038,14 +1050,18 @@ def port_bay_log(plugs, lid, panel, tray, kit):
         f"its face) on the ledge, a {c['frame_t']:g} mm frame on its back to {c['depth']:g} behind the screen face; "
         f"{2 * sum(c['ribs'])} crush ribs on its edges, {c['clr']:g} -> {c['clr'] + c['rib_h']:g} mm out (0 -> "
         f"{c['rib_h']:g} mm into the opening's wall)")
-    for l in port_lanes():
-        names = " + ".join(next(p["name"] for p in KIT_PORTS if p["key"] == k) for k in l["keys"])
-        log(f"    end-wall opening for {names}: y {l['y0']:.2f}..{l['y1']:.2f}, {l['d0']:.2f}..{l['d1']:.2f} mm behind the "
-            f"screen face ({l['y1'] - l['y0']:.1f} x {l['d1'] - l['d0']:.1f} mm)"
-            + (f"; ceiling over the lane thinned to {g['skin']:g} mm (from inside)" if l["relieved"] else ""))
-    lanes = port_lanes()
-    for a, b in zip(lanes, lanes[1:]):
+    ops = port_openings()
+    for o in ops:
+        names = " + ".join(next(p["name"] for p in KIT_PORTS if p["key"] == k) for k in o["keys"])
+        log(f"    end-wall opening for {names}: y {o['y0']:.2f}..{o['y1']:.2f}, {o['d0']:.2f}..{o['d1']:.2f} mm behind the "
+            f"screen face ({o['y1'] - o['y0']:.1f} x {o['d1'] - o['d0']:.1f} mm)"
+            + (f", centred on the end face (y {(Y_BACK - BACK_OLD_Y) / 2:.2f})" if g["slot"] else ""))
+    for a, b in zip(ops, ops[1:]):
         log(f"    post between openings: {b['y0'] - a['y1']:.2f} mm (y {a['y1']:.2f}..{b['y0']:.2f})")
+    for l in port_lanes():
+        if l["relieved"]:
+            names = " + ".join(next(p["name"] for p in KIT_PORTS if p["key"] == k) for k in l["keys"])
+            log(f"    ceiling over the {names} lane (y {l['y0']:.2f}..{l['y1']:.2f}) thinned to {g['skin']:g} mm from inside")
     for p in KIT_PORTS:
         w, h, L = p["plug"]
         pl = port_plugs(cable=False)[p["key"]]
@@ -1659,6 +1675,9 @@ def build_kit_coupons(lid, tray, ta, tb):
         "coupon_latch_lid": (lid ^ box(lx0, lx1, -BACK_OLD_Y - 1.0, -BACK_OLD_Y + 12.0, zf - 6.0, 60.0), "lid"),
         "coupon_latch_tray": (tray ^ box(lx0, lx1, -BACK_OLD_Y - 1.0, -BACK_OLD_Y + 12.0, -1.0, 20.0), "tray"),
     }
+    if SHELL and PORT_BAY and PORT_BAY["slot"]:   # the lid's left end wall with its opening and a strip of the ceiling
+        o = port_openings()[0]
+        out["coupon_port_end"] = (lid ^ box(LID_END_X - 1.0, LID_END_X + 9.0, o["y0"] - 5.0, o["y1"] + 5.0, -10.0, 60.0), "lid")
     if SPLIT_JOINT == "straight":            # no keys to try
         del out["coupon_dovetail_A"], out["coupon_dovetail_B"]
     return out

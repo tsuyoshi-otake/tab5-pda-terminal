@@ -263,20 +263,21 @@ def bridge_layers():
         import build as B
     if not (B.SHELL and B.PORT_BAY):
         return []
-    return [B.LID_TOP[0] - B.KIT_Z0 - l["d0"] for l in B.port_lanes()]
+    return [(B.LID_TOP[0] - B.KIT_Z0 - o["d0"], o["y1"] - o["y0"]) for o in B.port_openings()]
 
 
 def nozzle_section(report, checked):
     """Markdown: what the 0.4 mm nozzle leaves unprinted on the PLA plates."""
     rows, worst, bridged = [], 0.0, []
-    zb = bridge_layers() if PD_MOUNT == "kit" else []
+    spans = bridge_layers() if PD_MOUNT == "kit" else []
+    zb = [z for z, _ in spans]
     for plate, items in checked:
         by = {}
         for part, z, area, kind in items:
             if kind == "surface":
                 by.setdefault(part, []).append((z, area))
         for part, v in sorted(by.items()):
-            at_bridge = lambda z: part.startswith("lid") and any(abs(z - b) <= 0.25 for b in zb)
+            at_bridge = lambda z: (part.startswith("lid") or part == "coupon_port_end") and any(abs(z - b) <= 0.25 for b in zb)
             br = [(z, a) for z, a in v if at_bridge(z)]
             v = [(z, a) for z, a in v if not at_bridge(z)]
             if br:
@@ -301,9 +302,10 @@ def nozzle_section(report, checked):
             "| Plate | Part | Surface left unprinted |", "| --- | --- | --- |"] + (rows or ["| all | - | nothing |"]) + ["",
             f"Largest spot: {worst:.2f} mm\u00b2 in a single 0.2 mm layer; gaps inside thin walls: {gaps}. "
             + (f"The strips at the end-wall openings (up to {max(a for _, a in bridged):.1f} mm\u00b2): the layer that "
-               "closes an opening is a bridge across it, and the slicer lays it inside the 2 mm wall, leaving the outer "
-               "0.3 mm of both faces to the layer above; at worst a faint line on the lid's end face along the opening's "
-               "edge (cosmetic). " if bridged else "")
+               f"closes an opening is a bridge across it ({max(w for _, w in spans):.1f} mm long), and the slicer lays it "
+               "inside the 2 mm wall, leaving the outer 0.3 mm of both faces to the layer above: a faint line along the "
+               "opening's edge on the lid's end face, and the bridge may sag a little in the middle (cosmetic; the test "
+               "coupon coupon_port_end shows how your printer does it). " if bridged else "")
             + ("Nothing a part depends on: the hinge covers' crush ribs start 0.25 mm high, under what the nozzle adds "
                "to a wall, so the lowest of the four layers they span is left out and the upper three print; the rest are "
                "specks where a rounded edge or the tray's sloping rim runs out in one layer." if worst < 0.6 and gaps == 0 else

@@ -147,7 +147,7 @@ def plates():
             "plate0_test_coupons.3mf": ("Test coupons (print first)", [
                 [coupon("coupon_hinge_tray"), coupon("coupon_hinge_lid"), coupon("coupon_latch_tray")],
                 ([coupon("coupon_dovetail_A"), coupon("coupon_dovetail_B")] if "coupon_dovetail_A" in csrc else [])
-                + [coupon("coupon_latch_lid")],
+                + [coupon("coupon_latch_lid")] + ([coupon("coupon_port_end")] if "coupon_port_end" in csrc else []),
                 [("hinge_cover_lid", part(O("hinge_cover_lid_x2"), LAY_FLAT_Y)),
                  ("hinge_cover_tray", part(O("hinge_cover_tray_x2"), LAY_FLAT_Y))],
             ]),

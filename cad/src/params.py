@@ -179,13 +179,15 @@ USB_CEIL = SHELL_CEIL         # no relief over the USB-C plug path (the plug run
 # through its opening in the end wall (the cable stays there); with the bay's cover off, a finger in the bay guides it
 # into the port and pushes it home. Nothing stands in the bay (fingers need the room). The cover goes back on with the
 # plugs in, and the cables leave by the left end.
-#   clr: around each plug in the end-wall openings; openings closer than `merge` become one
+#   slot: one opening in the end wall, centred on the end face, over all the plugs (False: one per plug, merged where
+#         closer than `merge`)
+#   clr: round each plug in the end-wall opening(s)
 #   ceil_clr: least gap between a plug and the ceiling; where a plug needs more, the ceiling over its lane (end wall to
 #             the Tab5) is thinned from inside to `skin` (the USB-A and headset plugs stand 0.4-0.6 mm above the
 #             Tab5's back)
 # The bay's opening in the panel is a plain rectangle in line with the screen's window: the same top and bottom edges,
 # as far from the window as the rim round the Tab5 allows, and as far again from the panel's left edge (port_bay_rect).
-PORT_BAY = dict(clr=0.5, merge=2.0, ceil_clr=0.2, skin=LID_SKIN, r=0.5)
+PORT_BAY = dict(slot=True, clr=0.5, merge=2.0, ceil_clr=0.2, skin=LID_SKIN, r=0.5)
 # The bay's cover: a plate flush with the panel face in the opening's front `face` mm; the panel's back `ledge_t` mm (face +
 # ledge_t = PANEL_T)
 # reaches `ledge` mm into the opening as the ledge it rests on. A frame on its back (inside the ledge, down to `depth`
