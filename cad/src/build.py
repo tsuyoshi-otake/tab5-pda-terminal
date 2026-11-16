@@ -989,42 +989,77 @@ def rect_cs(x0, x1, y0, y1, r):
 
 
 def port_bay_panel_cut(z0, z1):
-    """The bezel panel's side of the port bay: the rectangle through the panel's front `face` mm, and inside it, by the
-    ledge's width, through the rest (the ledge the cover rests on)."""
+    """The bezel panel's side of the port bay: the rectangle straight through the panel's front `face` mm, then
+    narrowing by the seat's width (`ledge`) over the panel's back `ledge_t` mm (45 degrees: no overhang with the panel
+    printed face down), and that through the rest (the seat the cover rests on)."""
     g, c = PORT_BAY, PORT_COVER
     x0, x1, y0, y1 = port_bay_rect()
     zf = PANEL_Z0 + c["face"]
+    zb = zf + c["ledge_t"]
     e = c["ledge"]
-    return (prism_z(rect_cs(x0, x1, y0, y1, g["r"]), z0, zf) +
-            prism_z(rect_cs(x0 + e, x1 - e, y0 + e, y1 - e, g["r"]), zf - 0.01, z1))
+    assert e <= c["ledge_t"] + 1e-9, "the seat would be flatter than 45 degrees (an overhang in print)"
+    inner = rect_cs(x0 + e, x1 - e, y0 + e, y1 - e, g["r"])
+    return ((prism_z(rect_cs(x0, x1, y0, y1, g["r"]), z0, zf) +      # straight, then the seat (one hull, so no slivers)
+             prism_z(inner, zb - 0.01, zb)).hull() +
+            prism_z(inner, zb - 0.01, z1))                           # then straight through the rest
 
 
-def build_port_cover(ribs=True):
-    """The port bay's cover, in place: a plate in the opening's front `face` mm (clr a side, chamfer round its face),
-    a frame on its back inside the ledge down to `depth` behind the screen face, and tapered crush ribs on the plate's
-    edges (ribs=False: without them, for the clearance checks)."""
+def port_cover_catch(c):
+    """The tongue / hook profile, in (s = inset from the opening's outline, z): from inside the plate and the frame out
+    to `tip` behind the panel's back, `gap` off it, with 45-degree faces (printable with the cover face down)."""
+    h, k = c["hold"], c["clr"]
+    zb = PANEL_Z0 + c["face"] + c["ledge_t"]
+    zs = PANEL_Z0 + c["face"] + k - 0.05
+    s_top = k + (zb - zs) + 0.01                # just inside the plate's back edge (after its bevel): no coplanar faces
+    s_f = c["ledge"] + k                        # the frame's outer face
+    t = h["tip"]
+    z_tip = zb + h["gap"] + (s_top - t)
+    return [(s_f + 0.2, zb - 0.1), (s_top, zb - 0.1), (s_top, zb + h["gap"]), (t, z_tip), (t, z_tip + 0.2),
+            (s_f, z_tip + 0.2 + (s_f - t)), (s_f + 0.2, z_tip + 0.2 + (s_f - t))]
+
+
+def port_cover_finger():
+    """(y_root, y_free, x_slit0, x_slit1) of the latch finger on the cover's left edge."""
+    c = PORT_COVER
+    h = c["hold"]
+    x0, _, y0, y1 = port_bay_rect()
+    yc = (y0 + y1) / 2
+    s1 = c["ledge"] + c["clr"] + c["frame_t"]
+    return yc - h["finger"] / 2, yc + h["finger"] / 2, x0 + s1 - 0.02, x0 + s1 + h["slit"]   # (0.02 into the frame)
+
+
+def build_port_cover():
+    """The port bay's cover, in place: a plate filling the opening to the panel's back (clr a side, chamfer round its
+    face, its back edge bevelled at 45 degrees onto the seat, 0.05 mm off it), a frame on its back inside the seat down
+    to `depth` behind the screen face, a tongue along its right edge and a latch finger with a hook at the middle of its
+    left edge (`hold`)."""
     g, c = PORT_BAY, PORT_COVER
+    h = c["hold"]
     x0, x1, y0, y1 = port_bay_rect()
     k, f, ch = c["clr"], c["face"], c["chamfer"]
     za, zf = PANEL_Z0, PANEL_Z0 + c["face"]
+    zb = zf + c["ledge_t"]
     r = max(g["r"] - k, 0.2)
-    plate = (prism_z(rect_cs(x0 + k + ch, x1 - k - ch, y0 + k + ch, y1 - k - ch, r), za, zf) +   # chamfer round the face
-             prism_z(rect_cs(x0 + k, x1 - k, y0 + k, y1 - k, r), za + ch, zf)).hull()
+    zs = zf + k - 0.05                                   # the bevel starts here: inset k there, 45 degrees on
+    sb = zb - zs                                         # (the seat's inset is z - zf: 0.05 mm short of it)
+    plate = (prism_z(rect_cs(x0 + k + ch, x1 - k - ch, y0 + k + ch, y1 - k - ch, r), za, za + 0.01) +   # chamfer
+             prism_z(rect_cs(x0 + k, x1 - k, y0 + k, y1 - k, r), za + ch, zs) +
+             prism_z(rect_cs(x0 + k + sb, x1 - k - sb, y0 + k + sb, y1 - k - sb, max(g["r"] - 0.05, 0.2)),
+                     zb - 0.01, zb)).hull()                # (corners as round as the seat's, 0.05 in)
     e = c["ledge"] + k
     outer = rect_cs(x0 + e, x1 - e, y0 + e, y1 - e, r)
     inner = rect_cs(x0 + e + c["frame_t"], x1 - e - c["frame_t"], y0 + e + c["frame_t"], y1 - e - c["frame_t"], r)
-    cov = plate + prism_z(outer - inner, zf - 0.01, KIT_Z0 + c["depth"])
-    if ribs:     # cones along z: radius rib_r on the face side, rib_r - rib_h at the back; reaching clr + rib_h past
-        n_short, n_long = c["ribs"]      # the plate's edge at the face side, clr (just touching) at the back
-        rr = c["rib_r"]
-        e_c = rr - k - c["rib_h"]                       # the cone's axis, this far in from the plate's edge
-        cone = M.cylinder(zf - (za + ch), rr, rr - c["rib_h"], SEG)
-        at = [(x0 + k + e_c, y0 + 6.0 + (y1 - y0 - 12.0) * (i + 0.5) / n_short) for i in range(n_short)]
-        at += [(x1 - k - e_c, y) for _, y in at]
-        xs = [x0 + 5.0 + (x1 - x0 - 10.0) * (i + 0.5) / n_long for i in range(n_long)]
-        at += [(x, y0 + k + e_c) for x in xs] + [(x, y1 - k - e_c) for x in xs]
-        cov = cov + union([cone.translate([x, y, za + ch]) for x, y in at])
+    zt = KIT_Z0 + c["depth"]
+    cov = plate + prism_z(outer - inner, zb - 0.01, zt)
+    prof = port_cover_catch(c)
+    m = h["tongue_margin"]
+    cov = cov + prism_y(poly_cs([(x1 - s, z) for s, z in prof]), y0 + m, y1 - m)             # the tongue
+    yr, yf, xs0, xs1 = port_cover_finger()
+    cov = cov + prism_y(poly_cs([(x0 + s, z) for s, z in prof]), yf - 0.5 - h["hook"], yf - 0.5)   # the hook
+    cov = cov - box(xs0, xs1, yr, yf + h["slit"], za - 0.1, zt + 0.1) \
+              - box(x0 - 0.1, xs1, yf, yf + h["slit"], za - 0.1, zt + 0.1)                       # the finger's slot
     return cov
+
 
 def port_plugs(cable=True):
     """{key: plug} for the checks: each plug of KIT_PORTS in its port, its body from the Tab5's face outward (a cylinder
@@ -1055,11 +1090,15 @@ def port_bay_log(plugs, lid, panel, tray, kit):
         f"{xi:.1f}), {KIT_FACE_X - xi:.1f} mm; nothing stands in it")
     log(f"    opening in the panel: x {x0:.2f}..{x1:.2f}, y {y0:.2f}..{y1:.2f} ({x1 - x0:.2f} x {y1 - y0:.2f} mm), a "
         f"rectangle with the window's top and bottom edges, {wx0 - x1:.2f} mm from the window and from the panel's left "
-        f"edge; a ledge {c['ledge']:g} mm wide in the panel's back {c['ledge_t']:g} mm")
-    log(f"    cover: a {c['face']:g} mm plate flush with the panel face ({c['clr']:g} a side, {c['chamfer']:g} mm chamfer round "
-        f"its face) on the ledge, a {c['frame_t']:g} mm frame on its back to {c['depth']:g} behind the screen face; "
-        f"{2 * sum(c['ribs'])} crush ribs on its edges, {c['clr']:g} -> {c['clr'] + c['rib_h']:g} mm out (0 -> "
-        f"{c['rib_h']:g} mm into the opening's wall)")
+        f"edge; a 45-degree seat {c['ledge']:g} mm wide in the panel's back {c['ledge_t']:g} mm")
+    h = c["hold"]
+    yr, yf, xs0, xs1 = port_cover_finger()
+    log(f"    cover: a plate flush with the panel face, filling the opening to its back ({c['clr']:g} a side, {c['chamfer']:g} mm "
+        f"chamfer round its face, its back edge bevelled onto the seat), a {c['frame_t']:g} mm frame on its back to "
+        f"{c['depth']:g} behind the screen face; held by a tongue along its right edge ({y1 - y0 - 2 * h['tongue_margin']:.1f} mm) "
+        f"and a hook on a {h['finger']:g} mm latch finger at the middle of its left edge ({xs0 - x0 - c['clr']:.1f} mm wide, "
+        f"cut free by a {h['slit']:g} mm slot), both reaching {c['ledge'] - h['tip']:.2f} mm behind the panel's back, "
+        f"{h['gap']:g} off it, with 45-degree faces")
     ops = port_openings()
     for o in ops:
         names = " + ".join(next(p["name"] for p in KIT_PORTS if p["key"] == k) for k in o["keys"])
@@ -1097,19 +1136,39 @@ def port_bay_log(plugs, lid, panel, tray, kit):
         for b in keys[i + 1:]:
             v = (port_plugs(cable=False)[a] ^ port_plugs(cable=False)[b]).volume()
             assert v < 0.01, (a, b, v)
-    plain = build_port_cover(ribs=False)
+    cov = build_port_cover()
     for part, name in ((lid, "lid"), (panel, "panel"), (tray, "tray (closed)"), (kit, "Tab5"))\
             + tuple((pl, f"{k} plug") for k, pl in plugs.items()):
-        v = (plain ^ part).volume()
+        v = (cov ^ part).volume()
         log(f"    cover vs {name}: {v:.3f} mm3")
         assert v < 0.01, ("cover", name, v)
-    press = (build_port_cover() ^ panel).volume()
-    log(f"    cover's crush ribs pressed into the panel: {press:.2f} mm3 (nothing else touches)")
-    assert 0.0 < press < 2.0, press
-    if isinstance(g["slot"], str):     # the others go in through the panel's opening (inside its ledge)
+    # the catches: pulled 0.5 mm toward the front, the tongue (right) and the hook (left) both bear on
+    # the panel's back (and the plate does not, so it is the catches that hold)
+    hold0 = c["hold"]
+    pulled = cov.translate([0, 0, -0.5]) ^ panel
+    xm = (x0 + x1) / 2
+    v_l = (pulled ^ box(x0 - 5, xm, y0 - 5, y1 + 5, 0, 40)).volume()
+    v_r = (pulled ^ box(xm, x1 + 5, y0 - 5, y1 + 5, 0, 40)).volume()
+    log(f"    cover pulled 0.5 mm out: the hook bears on the panel's back with {v_l:.2f} mm3, the tongue "
+        f"with {v_r:.2f} mm3")
+    assert v_l > 0.1 and v_r > 1.0, (v_l, v_r)
+    # the finger's spring: a cantilever of the plate (and the frame on it) bending in the plane of the plate
+    L, w_p, t_p = yf - yr, xs0 - x0 - c["clr"], c["face"] + c["ledge_t"]
+    a1, a2 = w_p * t_p, c["frame_t"] * c["depth"]
+    u1, u2 = w_p / 2, w_p - c["frame_t"] / 2
+    uc = (a1 * u1 + a2 * u2) / (a1 + a2)
+    I = t_p * w_p ** 3 / 12 + a1 * (u1 - uc) ** 2 + c["depth"] * c["frame_t"] ** 3 / 12 + a2 * (u2 - uc) ** 2
+    hold = c["hold"]
+    d = c["ledge"] - hold["tip"] + 0.05
+    eps = 3 * d * max(uc, w_p - uc) / L ** 2
+    force = 3 * 3500.0 * I * d / L ** 3
+    log(f"    latch finger: {L:g} mm, springs {d:.2f} mm in to pass the seat (slot {hold['slit']:g}); strain {100 * eps:.2f} % "
+        f"(PLA yields at about 2 %), about {force:.1f} N at the hook")
+    assert d < hold["slit"] and eps < 0.01, (d, eps)
+    if isinstance(g["slot"], str):     # the others go in through the panel's opening (inside its seat)
         ix0, ix1 = x0 + c["ledge"], x1 - c["ledge"]
         lmax = max(p["plug"][2] for p in KIT_PORTS if p["key"] != g["slot"])
-        log(f"    plugs in through the bay: {ix1 - ix0:.1f} mm across inside the ledge; a longer plug goes in tail first under "
+        log(f"    plugs in through the bay: {ix1 - ix0:.1f} mm across inside the seat; a longer plug goes in tail first under "
             f"the panel's left edge, up to {ix1 - xi:.1f} mm (the longest here {lmax:g})")
         assert lmax < ix1 - xi
     ys = sorted((p["y"] - p["plug"][0] / 2, p["y"] + p["plug"][0] / 2) for p in KIT_PORTS)

@@ -30,12 +30,12 @@
  },
  "3mf/bambu_a1mini/bambu_plate3_panel.3mf": {
   "objects": 4,
-  "sha256": "ab9d45b125e9cacd182a6e6cb7a4b22850c6e4f83b0dd3d43323c3cc6d18a57a",
+  "sha256": "2567b38ea6c18ed1940ae7a02ae0b3c907c165fee8c8f70cd5f0190b85c13504",
   "volumes": [
    806.4,
-   2210.97,
+   3182.56,
    3425.38,
-   12509.25
+   12412.9
   ]
  },
  "3mf/bambu_a1mini/tab5_process_a1mini_04.json": {
@@ -57,10 +57,10 @@
  },
  "3mf/large/plate3_panel.3mf": {
   "objects": 2,
-  "sha256": "8dcd3c07134792ac13c8ee8e9d42311a8d0e5df0e58116fd851c6285e37cb660",
+  "sha256": "f0fd6d30c7db8b8aab5c31263eae234c0c33df1fd7b6bb5164008d8b18a258f9",
   "volumes": [
-   2210.97,
-   16787.4
+   3182.56,
+   16691.04
   ]
  },
  "3mf/plate0_test_coupons.3mf": {
@@ -94,12 +94,12 @@
  },
  "3mf/plate3_panel.3mf": {
   "objects": 4,
-  "sha256": "9e8c2f8913f7a1886a0251a80993a81376d4862620fcde305dd4bc0d2b3329ec",
+  "sha256": "1329880a09484be20ea620aa0252891ec7a264f6e0c96c5a35e25f73da83596e",
   "volumes": [
    806.4,
-   2210.97,
+   3182.56,
    3425.38,
-   12509.25
+   12412.9
   ]
  },
  "out/assembly.json": {
@@ -223,9 +223,9 @@
     17.6
    ]
   ],
-  "faces": 3090,
-  "sha256": "e14cf766259dfb55373587bd9d3832986e37d653c5399c2d4bf42a835985adef",
-  "volume": 16787.4
+  "faces": 2986,
+  "sha256": "8bbcc7e011a76fa57d3d982b3bbc31980cd9b0fdfc8d8644c5ede35c1733e030",
+  "volume": 16691.05
  },
  "out/keyboard_tray.stl": {
   "bbox": [
@@ -247,19 +247,19 @@
  "out/port_cover.stl": {
   "bbox": [
    [
-    -91.95,
-    -32.15,
+    -91.65,
+    -31.85,
     14.0
    ],
    [
-    -62.5,
-    30.95,
+    -62.8,
+    30.65,
     17.6
    ]
   ],
-  "faces": 1556,
-  "sha256": "8b4fc5647557a708ad3d60f13b6ffe7b958bde0b1c4fc2d11a9c988c44157f49",
-  "volume": 2210.97
+  "faces": 914,
+  "sha256": "b92c6d3fc35356dbf9931637fb470f15dd637802f83e5d4c689245cea5b1290a",
+  "volume": 3182.56
  },
  "out/split/lid_A_right.stl": {
   "bbox": [
@@ -325,9 +325,9 @@
     17.6
    ]
   ],
-  "faces": 2426,
-  "sha256": "678a0b82d2b77699cbff6c7164385501f41fa0db61ba0510c62c1680fa000a92",
-  "volume": 12509.26
+  "faces": 2322,
+  "sha256": "4289fee2d54497d9678edf0244f5d86ba97ef01a1150ce873a42226b5b30cf61",
+  "volume": 12412.9
  },
  "out/split/splice/lid_splice_1.stl": {
   "bbox": [
@@ -461,9 +461,9 @@
     17.6
    ]
   ],
-  "faces": 3090,
-  "sha256": "e14cf766259dfb55373587bd9d3832986e37d653c5399c2d4bf42a835985adef",
-  "volume": 16787.4
+  "faces": 2986,
+  "sha256": "8bbcc7e011a76fa57d3d982b3bbc31980cd9b0fdfc8d8644c5ede35c1733e030",
+  "volume": 16691.05
  },
  "out/whole/tray.stl": {
   "bbox": [

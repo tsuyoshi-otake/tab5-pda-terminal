@@ -23,9 +23,9 @@
  "plate3_panel.3mf": {
   "warnings": [],
   "ok": true,
-  "time": "38m 16s",
-  "grams": 23.71,
-  "metres": 7.949
+  "time": "38m 58s",
+  "grams": 24.73,
+  "metres": 8.29036
  },
  "large/plate1_lid.3mf": {
   "warnings": [],
@@ -44,40 +44,117 @@
  "large/plate3_panel.3mf": {
   "warnings": [],
   "ok": true,
-  "time": "35m 8s",
-  "grams": 23.72,
-  "metres": 7.95449
+  "time": "35m 52s",
+  "grams": 24.74,
+  "metres": 8.295950000000001
  },
- "large_total_g": 155.5,
+ "large_total_g": 156.52,
  "large_total_min": 232,
- "total_g": 156.8,
+ "total_g": 157.82,
  "total_min": 243,
  "nozzle_check": {
   "worst_spot_mm2": 0.12955531492842257,
   "wall_gaps": 0,
   "end_wall_bridge_strips_mm2": 3.886297934523528
  },
- "lid_g": 219.78000000000003,
+ "overhangs": {
+  "plate0_test_coupons.3mf/coupon_hinge_lid": {
+   "overhangs": [],
+   "bridges": 2,
+   "longest_bridge": 5.7
+  },
+  "plate0_test_coupons.3mf/coupon_hinge_tray": {
+   "overhangs": [],
+   "bridges": 0,
+   "longest_bridge": 0.0
+  },
+  "plate0_test_coupons.3mf/coupon_latch_lid": {
+   "overhangs": [],
+   "bridges": 0,
+   "longest_bridge": 0.0
+  },
+  "plate0_test_coupons.3mf/coupon_latch_tray": {
+   "overhangs": [],
+   "bridges": 0,
+   "longest_bridge": 0.0
+  },
+  "plate0_test_coupons.3mf/coupon_port_end": {
+   "overhangs": [],
+   "bridges": 1,
+   "longest_bridge": 12.5
+  },
+  "plate1_lid.3mf/lid_A_right": {
+   "overhangs": [],
+   "bridges": 0,
+   "longest_bridge": 0.0
+  },
+  "plate1_lid.3mf/lid_B_main": {
+   "overhangs": [],
+   "bridges": 5,
+   "longest_bridge": 12.5
+  },
+  "plate1_lid.3mf/lid_splice_1": {
+   "overhangs": [],
+   "bridges": 0,
+   "longest_bridge": 0.0
+  },
+  "plate2_tray.3mf/tray_A_left": {
+   "overhangs": [],
+   "bridges": 0,
+   "longest_bridge": 0.0
+  },
+  "plate2_tray.3mf/tray_B_main": {
+   "overhangs": [],
+   "bridges": 0,
+   "longest_bridge": 0.0
+  },
+  "plate2_tray.3mf/tray_splice_1": {
+   "overhangs": [],
+   "bridges": 0,
+   "longest_bridge": 0.0
+  },
+  "plate3_panel.3mf/panel_A_right": {
+   "overhangs": [],
+   "bridges": 0,
+   "longest_bridge": 0.0
+  },
+  "plate3_panel.3mf/panel_B_main": {
+   "overhangs": [],
+   "bridges": 0,
+   "longest_bridge": 0.0
+  },
+  "plate3_panel.3mf/panel_splice_1": {
+   "overhangs": [],
+   "bridges": 0,
+   "longest_bridge": 0.0
+  },
+  "plate3_panel.3mf/port_cover": {
+   "overhangs": [],
+   "bridges": 0,
+   "longest_bridge": 0.0
+  }
+ },
+ "lid_g": 220.79000000000002,
  "base_g": 63.269999999999996,
  "lid_cg": [
-  2.10670624484493,
-  2.2756064748287246,
-  21.970475653530002
+  1.720653455144302,
+  2.259297042765226,
+  21.940351363205853
  ],
  "pivot_y": 53.0,
  "table_contact_deg": 143.1,
  "table_limit": 143,
- "keyboard_min_g": 155.9580764140082,
+ "keyboard_min_g": 156.85385979744265,
  "hinge_torque_nm": [
   0.1176,
   0.1568,
   0.196
  ],
- "lid_moment_nm": 0.11184336078991863,
+ "lid_moment_nm": 0.11239266288115239,
  "springback_push_n": [
-  0.05719462702515015,
-  0.44666308206737565,
-  0.8361315371096013
+  0.051737080167388025,
+  0.44120553520961353,
+  0.8306739902518392
  ],
  "snap_k": 19.066341835916937,
  "snap_hold_n": 12.98710900506058,
@@ -88,8 +165,8 @@
   10.220127749616871
  ],
  "open_force_n": [
-  5.7778479272130046,
-  13.433772087127956
+  5.772390380355242,
+  13.428314540270193
  ],
  "keyboard_for_one_hand_g": 325.00782627370705
 }

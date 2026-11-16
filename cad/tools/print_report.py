@@ -63,10 +63,10 @@ THIN_NOTE = {"panel_B_main": "the screen-window bevel ends in a sharp edge (as i
 if PD_MOUNT == "kit":
     THIN_NOTE[piece_names("lid")[1]] = (f"the ceiling over the USB-A, USB-C and headset lanes of the port bay is "
                                         f"{PORT_BAY['skin']:g} mm, printed as the first layers on the bed")
-    THIN_NOTE[piece_names("panel")[1]] = ("the snap bumps on its front and back edges come to a ridge; the ledge round the "
-                                          "port bay's opening, which the cover rests on, is the panel's back 0.6 mm")
-    THIN_NOTE["port_cover"] = ("a 1 mm plate on a 1 mm frame; the thin spots are the chamfer round its face and the "
-                               "crush ribs on its edges")
+    THIN_NOTE[piece_names("panel")[1]] = ("the snap bumps on its front and back edges come to a ridge; the 45-degree seat "
+                                          "round the port bay's opening, which the cover rests on, tapers to an edge")
+    THIN_NOTE["port_cover"] = ("a 1.6 mm plate on a 1 mm frame; the thin spots are the chamfer round its face, the bevel "
+                               "on its back edge and the tips of the tongue and the latch's hook")
     _sp = "the splice-plate pockets at the seam leave half the wall until the plate is glued in"
     for _p in piece_names("lid") + piece_names("tray") + piece_names("panel"):
         THIN_NOTE[_p] = (THIN_NOTE[_p] + "; " + _sp) if _p in THIN_NOTE else _sp
@@ -154,6 +154,73 @@ def thickness(mesh, n=6000):
     d = np.full(len(pts), np.inf)
     d[iray] = np.linalg.norm(loc - org[iray], axis=1)
     return d
+
+
+def overhangs(mesh, layer=0.2, tol=0.25, wmin=0.4, amin=1.0):
+    """Unsupported regions of a part as printed (mesh in its plate position, bed at its lowest z), from sections every
+    `layer` mm: where a layer reaches more than `tol` past the one below (steeper than ~50 degrees), a region at least
+    `amin` mm2 and about `wmin` mm wide (2 x area / perimeter). Each is a bridge (held by the layer below at two places
+    or most of its edge: a hole's top in a wall, a closed pocket) or an overhang (held along one side only: a ledge in
+    mid-air, which sags). [dict(z, kind, area, width, size, at)]"""
+    from shapely.ops import unary_union
+    z0, z1 = mesh.bounds[:, 2]
+    zs = np.arange(z0 + layer / 2, z1, layer)
+    polys = []
+    for sec in mesh.section_multiplane(plane_origin=[0, 0, 0], plane_normal=[0, 0, 1], heights=list(zs)):
+        polys.append(unary_union([q.buffer(0) for q in sec.polygons_full]) if sec is not None else None)
+    out = []
+    for i in range(1, len(zs)):
+        cur, prev = polys[i], polys[i - 1]
+        if cur is None or prev is None or cur.is_empty or prev.is_empty:
+            continue
+        u = cur.difference(prev.buffer(tol))
+        for c in (list(u.geoms) if hasattr(u, "geoms") else [u]):
+            if c.is_empty or c.area < amin or 2 * c.area / c.length < wmin:
+                continue
+            ring = c.buffer(0.05).boundary
+            frac = ring.intersection(prev.buffer(tol + 0.1)).length / ring.length
+            touch = c.buffer(tol + 0.15).intersection(prev)
+            n = len(touch.geoms) if hasattr(touch, "geoms") else (0 if touch.is_empty else 1)
+            xy = np.array(c.minimum_rotated_rectangle.exterior.coords)[:3]
+            size = sorted(float(np.linalg.norm(xy[j + 1] - xy[j])) for j in range(2))
+            out.append(dict(z=float(zs[i] - z0), kind="bridge" if (n >= 2 or frac > 0.75) else "overhang",
+                            area=float(c.area), width=float(2 * c.area / c.length), size=size,
+                            at=tuple(float(v) for v in c.centroid.coords[0])))
+    return out
+
+
+def overhang_section(report):
+    """Every part of the A1 mini plates as it lies on its plate: unsupported overhangs (none allowed) and bridges."""
+    lines = ["## Overhangs", "",
+             "Each part as it lies on its plate (`3mf/plate*.3mf`), cut every 0.2 mm: where a layer reaches more than "
+             "0.25 mm past the one below, over at least 1 mm2. A **bridge** is held by the layer below at both ends or "
+             "round most of its edge (the top of a hole in a wall); an **overhang** is held along one side only, a ledge "
+             "in mid-air: it sags and strings, and none is allowed (the flat ledge round the port bay's opening was one, "
+             "and failed twice in print).", "",
+             "| Plate | Part | Overhangs | Bridges (longest) |", "| --- | --- | --- | --- |"]
+    bad = []
+    for p in sorted(glob.glob(os.path.join(CAD, "3mf", "plate*.3mf"))):
+        sc = trimesh.load(p)
+        for node in sorted(sc.graph.nodes_geometry):
+            T, gname = sc.graph[node]
+            m = sc.geometry[gname].copy()
+            m.apply_transform(T)
+            r = overhangs(m)
+            ov = [x for x in r if x["kind"] == "overhang"]
+            br = [x for x in r if x["kind"] == "bridge"]
+            report.setdefault("overhangs", {})[f"{os.path.basename(p)}/{node}"] = dict(
+                overhangs=[dict(z=round(x["z"], 2), area=round(x["area"], 1), width=round(x["width"], 2)) for x in ov],
+                bridges=len(br), longest_bridge=round(max([x["size"][1] for x in br], default=0.0), 1))
+            if ov:
+                bad.append(node)
+            lines.append(f"| `{os.path.basename(p)}` | {node} | "
+                         + ("; ".join(f"{x['area']:.0f} mm2, {x['width']:.1f} mm wide, {x['z']:.1f} mm up" for x in ov)
+                            if ov else "none")
+                         + f" | {len(br)}" + (f" ({max(x['size'][1] for x in br):.1f} mm)" if br else "") + " |")
+    lines += ["", ("OK: no part has an unsupported overhang; the bridges are short." if not bad else
+                   f"CHECK: unsupported overhangs on {', '.join(bad)}."), ""]
+    assert not bad, f"unsupported overhangs: {bad}"
+    return lines
 
 
 def open_point(p, deg):
@@ -444,6 +511,10 @@ def main():
         report["total_g"], report["total_min"] = total_g, total_min
         if checked:
             lines += nozzle_section(report, checked)
+
+    # 1b. overhangs (no slicer needed)
+    if PD_MOUNT == "kit":
+        lines += overhang_section(report)
 
     # 2. wall thickness
     lines += ["## Wall thickness", "",
