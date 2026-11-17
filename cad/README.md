@@ -34,9 +34,9 @@ designs (bare PaperDIY, magnets, push-rods, panel-mount USB-C lids) are still in
 | --- | --- | --- |
 | device in the lid | Complete Kit 120 × 67 × 6.3 mm, 43 g | Tab5 128 × 80 × 12 mm, 120.9 g (no battery) |
 | lid | top slopes, 23.8 / 26.4 mm closed | flat top, 29.8 mm closed (`kit_lid_top`: flat when the device needs more than the hinge) |
-| window | 105 × 59.7 | 110.7 × 62.3 (+0.3 a side), centred in the lid; 0.6 mm off the Tab5's middle across |
+| window | 105 × 59.7 | the Tab5's whole black glass: its outline less 1.8 mm a side (124.4 × 76.4, r 2.2), centred on the Tab5; the white rim round the glass is under the panel |
 | ports | USB-C at the left end, y −24, at the kit's front face | a **port bay** left of the Tab5: power button, USB-A, USB-C, headset jack and Grove reachable through the panel; one USB-C-sized opening in the left end wall, in line with the USB-C port, through which all the cables leave (`KIT_PORTS`, `PORT_BAY`; below) |
-| panel | KEY slot + guard, power slot, 6 screws | camera hole, 2 microphone holes, the port bay's opening (a rectangle in line with the window, closed by a cover held by a tongue and a latch; no separate power slot), 4 screws (corners) + 2 pillars without a screw right of the Tab5 (`PANEL_PILLARS`) |
+| panel | KEY slot + guard, power slot, 6 screws | the port bay's opening (a rectangle in line with the screen's lit area, closed by a cover held by a tongue and a latch; no separate power slot), 4 screws (corners) + 2 pillars without a screw right of the Tab5 (`PANEL_PILLARS`) |
 | snap's flex zone | to 2 mm below the ceiling | to 8 mm below the ceiling (the same 11.9 mm of height in a taller wall): 19.1 N/mm, strain 0.33 % at 0.40 mm |
 | split (A1 mini) | lid x −72, panel x −74.2 (left ends) | lid and panel both at x +72 (right ends, so the port bay is in one piece with a whole ceiling; in line, so the seam is one line from the screen side); one splice plate each; the tray still at x −72 |
 | tray, hinges, snap lip and groove, relief at the hinge side | | unchanged (the tray is the same part); no hinge covers in either version since 2026-11-15 |
@@ -52,9 +52,9 @@ edge toward −y (the lid's front), so the screen is upright when the lid is ope
 | read from | value | parameter |
 | --- | --- | --- |
 | size drawing, `Tab5.stl` | body 128.0 × 80.0 × 12.0, corner r 4 | `KIT_L`, `KIT_W`, `KIT_T`, `KIT_R` |
-| size drawing | visible area x 6.0…116.4, y 9.8…71.4 (from the lower left) | `KIT_WIN_OFF` −2.8, `KIT_WIN_OFF_Y` −0.6; size = the 5" 16:9 active area |
-| size drawing | camera Ø5, 4.45 from the right edge, half way up | `KIT_CAMERA` |
-| size drawing | two microphone holes in the top bezel, 23.2 and 57.5 from the left, 3.3 below the top edge | `KIT_MICS` |
+| product photo (front, square on) | lit area 8.7 from the USB end, 9.5 from the other, 8.9 from top and bottom; black glass to 0.9…1.3 of the outline | `KIT_WIN_OFF` −0.4, `KIT_WIN_OFF_Y` 0, `KIT_GLASS_RIM` 1.2; size = the 5" 16:9 active area. The size drawing's inner rectangle (not dimensioned) scales to x 6.0…116.4, 2.8 toward the USB end: a window placed by it showed the lit area about 3 mm off on the printed panel |
+| size drawing | camera Ø5, 4.45 from the right edge, half way up (in the window) | `KIT_CAMERA` (figures only) |
+| size drawing | two microphone holes in the top bezel, 23.2 and 57.5 from the left, 3.3 below the top edge (in the window) | `KIT_MICS` (figures only) |
 | `Tab5.stl`, size drawing (left side view) | USB-C opening 36.7…45.1 mm from the bottom edge, 7.2…9.7 behind the screen face | `KIT_USB_Y` 0, `KIT_USB_Z` (7.2, 9.7) |
 | size drawing (left side view) | power button 7.5…16.7 mm below the top edge (`Tab5.stl`: 8.0…16.0) | `KIT_PWR_CAP_Y` (−32.5, −23.3) |
 | size drawing (left side view) | USB-A receptacle 19.0…31.1 mm below the top edge, its shell from the back face to 5.2 behind the screen | `KIT_PORTS` usb_a: y −15.0, axis 8.6 behind the screen face |
@@ -75,9 +75,10 @@ cover (`KIT_RIBS_X`, left of the battery bay), 0.2 mm behind it. Nothing uses it
 
 The Tab5's left edge (its ports) is 37.8 mm inside the lid's left end wall. That space is the **port bay**:
 
-- **Panel**: a plain rectangle, x −91.85…−62.60, y −32.05…30.85 (29.25 × 62.9 mm, `port_bay_rect`): the window's top and
-  bottom edges, its right edge at the rim round the Tab5 (kept), 6.95 mm from the window and as far from the panel's
-  left edge. Its front 1.0 mm is the rectangle; over the panel's back 0.6 mm it narrows 0.6 mm a side at 45° (the
+- **Panel**: a plain rectangle, x −95.60…−62.60, y −31.45…31.45 (33.0 × 62.9 mm, `port_bay_rect`): the screen's lit
+  area's top and bottom edges (+0.3), its right edge at the rim round the Tab5 (kept), 3.2 mm from the window (the
+  glass) and as far from the panel's left edge. The lid keeps clear the span it was printed with (`PORT_BAY["lid_y"]`,
+  y −32.05…30.85: the opening then had the old window's edges), so the panel's opening can change alone. Its front 1.0 mm is the rectangle; over the panel's back 0.6 mm it narrows 0.6 mm a side at 45° (the
   seat the cover rests on; `port_bay_panel_cut`). Until 2026-11-16 that was a flat ledge reaching 1.2 mm in: printed
   face down it hung in mid-air, sagged and strung, and the panel failed twice. The print report now looks for such
   overhangs on every part as it lies on its plate (none allowed).
@@ -103,7 +104,7 @@ The Tab5's left edge (its ports) is 37.8 mm inside the lid's left end wall. That
   USB-C one between them) the ceiling is thinned from inside to 1.2 mm, end wall to Tab5, which leaves them 0.4 and
   0.25 mm. The lid's height does not change.
 - The USB-C plug goes straight through the opening into the port. The others go in through the bay with the cover off
-  (28.0 mm across inside the seat; the 30 mm USB-A plug goes in tail first under the panel's left edge, which leaves
+  (31.8 mm across inside the seat; the 30 mm USB-A plug goes in tail first under the panel's left edge, which leaves
   35.8 mm), and their cables out through the same opening: the cable's far end (a USB-C plug, a Grove connector) is
   threaded out through it, or a headset plug in from outside. Between a plug's tail and the end wall the cables bend
   over to the opening: USB-A 7.8 mm to go 8.5 mm sideways (a thin, soft cable), headset 12.8 mm for 6.5, Grove 25.8 mm
@@ -159,7 +160,7 @@ The figures here are redrawn from this version's parts:
 None of the original meshes is used. The lid is a new hollow part that follows the original's outline (corner radii
 halved to 3 mm, no chamfers) and parting surface, with a flat top, hinge pads and bosses, panel bosses, ribs, an opening
 for the cables in the left end wall, the hinge mortises and a snap lip on a thinned zone of the front wall; the bezel panel is new
-(window, rim, camera and microphone holes, the port bay's opening with its ledge, countersunk holes, snap bumps). The tray is a new thin shell
+(window, rim, the port bay's opening with its seat, countersunk holes, snap bumps). The tray is a new thin shell
 with the original tray's outline (r 3), parting, keyboard room (as the opening of a deck flush with the rim) and rear
 opening, plus hinge pads and bosses and a recess + groove for the snap lip. New parts: the port bay's cover,
 the splice plates and the test coupons. The original's knob hinge, label and Palma-specific openings are not used.

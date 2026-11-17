@@ -967,19 +967,28 @@ def port_bay_cuts():
     return cuts
 
 
+def panel_window():
+    """(cx, cy, w, h, r) of the panel's window: the Tab5's outline less PANEL_WIN['overlap'] a side, so the whole black
+    glass shows and the white rim round it does not."""
+    ov = PANEL_WIN["overlap"]
+    return KIT_CX, 0.0, KIT_L - 2 * ov, KIT_W - 2 * ov, KIT_R - ov
+
+
 def port_bay_rect():
-    """(x0, x1, y0, y1) of the bay's opening in the panel face: a rectangle with the window's top and bottom edges,
-    its right edge at the rim round the Tab5, and as far from the panel's left edge as from the window."""
-    wx0 = KIT_CX + KIT_WIN_OFF - KIT_WIN[0] / 2 - PANEL_WIN_CLR
-    wh = KIT_WIN[1] / 2 + PANEL_WIN_CLR
+    """(x0, x1, y0, y1) of the bay's opening in the panel face: a rectangle in line with the screen's lit area (its top
+    and bottom + 0.3), its right edge at the rim round the Tab5, and as far from the panel's left edge as from the
+    window."""
+    wcx, _, ww, _, _ = panel_window()
+    wx0 = wcx - ww / 2
+    wh = KIT_WIN[1] / 2 + 0.3
     x1 = KIT_X0 - PANEL_RIM["w"]
     x0 = LID_END_X + SHELL_WALL + PANEL_CLR + (wx0 - x1)
     return x0, x1, KIT_WIN_OFF_Y - wh, KIT_WIN_OFF_Y + wh
 
 
 def port_bay_span():
-    """(y0, y1) kept clear inside the lid: the panel's opening and the end wall's."""
-    _, _, y0, y1 = port_bay_rect()
+    """(y0, y1) kept clear inside the lid: as the lid was printed (PORT_BAY['lid_y']), and the end wall's opening."""
+    y0, y1 = PORT_BAY["lid_y"]
     ops = port_openings()
     return min(y0, min(o["y0"] for o in ops)), max(y1, max(o["y1"] for o in ops))
 
@@ -1084,12 +1093,13 @@ def port_bay_log(plugs, lid, panel, tray, kit):
     g = PORT_BAY
     xi = LID_END_X + SHELL_WALL
     x0, x1, y0, y1 = port_bay_rect()
-    wx0 = KIT_CX + KIT_WIN_OFF - KIT_WIN[0] / 2 - PANEL_WIN_CLR
+    wcx, _, ww, _, _ = panel_window()
+    wx0 = wcx - ww / 2
     c = PORT_COVER
     log(f"  port bay: the space between the Tab5's left face (x {KIT_FACE_X:.1f}) and the lid's end wall (inner face x "
         f"{xi:.1f}), {KIT_FACE_X - xi:.1f} mm; nothing stands in it")
     log(f"    opening in the panel: x {x0:.2f}..{x1:.2f}, y {y0:.2f}..{y1:.2f} ({x1 - x0:.2f} x {y1 - y0:.2f} mm), a "
-        f"rectangle with the window's top and bottom edges, {wx0 - x1:.2f} mm from the window and from the panel's left "
+        f"rectangle in line with the screen's lit area, {wx0 - x1:.2f} mm from the window and from the panel's left "
         f"edge; a 45-degree seat {c['ledge']:g} mm wide in the panel's back {c['ledge_t']:g} mm")
     h = c["hold"]
     yr, yf, xs0, xs1 = port_cover_finger()
@@ -1556,14 +1566,10 @@ def build_kit_panel():
     P = P + prism_z(kit_cs(KIT_FIT + r["w"]) - kit_cs(KIT_FIT), PANEL_Z1 - 0.01, PANEL_Z1 + r["h"])
     hw, y_pad = hinge_pad_extent()
     cuts = [box(c - hw - PANEL_CLR, c + hw + PANEL_CLR, y_pad - PANEL_CLR, BIG, -BIG, BIG) for c in hinge_centres()]
-    wx = KIT_CX + KIT_WIN_OFF
-    ww, wh = KIT_WIN[0] + 2 * PANEL_WIN_CLR, KIT_WIN[1] + 2 * PANEL_WIN_CLR
-    cuts.append(prism_z(rrect(wx, KIT_WIN_OFF_Y, ww, wh, 0.5), PANEL_Z0 - 1.0, PANEL_Z1 + 1.0))   # square edges (no chamfer)
+    wcx, wcy, ww, wh, wr = panel_window()           # the whole black glass (camera and microphones in it)
+    cuts.append(prism_z(rrect(wcx, wcy, ww, wh, wr), PANEL_Z0 - 1.0, PANEL_Z1 + 1.0))   # square edges (no chamfer)
     g = PANEL_SLOT
     z0, z1 = PANEL_Z0 - 1.0, PANEL_Z1 + r["h"] + 1.0
-    cx, cy, cd = KIT_CAMERA                                        # camera and microphones in the bezel
-    cuts.append(cyl_z(cd / 2, z0, z1, KIT_CX + cx, cy))
-    cuts += [cyl_z(KIT_MIC_D / 2, z0, z1, KIT_CX + mx, my) for mx, my in KIT_MICS]
     if KIT_KEY_CAPS:
         xs = [kit_x(d) for cap in KIT_KEY_CAPS for d in cap]
         xa, xb, ya, yb = min(xs) - g["end"], max(xs) + g["end"], -KIT_W / 2 - g["out"], -KIT_W / 2 + 0.5
@@ -1774,7 +1780,10 @@ def main_kit():
     a, b, why = LID_TOP
     zf = under_z(-BACK_OLD_Y)
     log("== layout (the M5Stack Tab5, screen down in the lid, held by the bezel panel; 'kit' below = the Tab5)")
-    log(f"  kit pocket x {KIT_X0:.1f}..{KIT_X1:.1f}, y {KIT_Y0:.1f}..{KIT_Y1:.1f}; window centre x = {KIT_CX + KIT_WIN_OFF:.1f}")
+    wcx, wcy, ww, wh, wr = panel_window()
+    log(f"  kit pocket x {KIT_X0:.1f}..{KIT_X1:.1f}, y {KIT_Y0:.1f}..{KIT_Y1:.1f}; panel window {ww:.1f} x {wh:.1f} r {wr:.1f} "
+        f"centred on the Tab5 (x {wcx:.1f}): its black glass shows, its white rim ({KIT_GLASS_RIM:g}) is under the panel "
+        f"({PANEL_WIN['overlap']:g} a side); the lit area's centre x = {KIT_CX + KIT_WIN_OFF:.1f}, y = {KIT_WIN_OFF_Y:.1f}")
     if SHELL:
         log(f"  shell lid (walls {SHELL_WALL}, ceiling {SHELL_CEIL}); bezel panel z {PANEL_Z0:.2f}..{PANEL_Z1:.2f} (keyboard top "
             f"{KB_TOP_Z} + {KB_CLR}; MEASURE the keyboard); kit front z = {KIT_Z0:.2f}, back + gap z = {KIT_Z1:.2f}")

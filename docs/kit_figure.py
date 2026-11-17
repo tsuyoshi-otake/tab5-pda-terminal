@@ -16,7 +16,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt                       # noqa: E402
 from matplotlib import font_manager                   # noqa: E402
-from matplotlib.patches import Circle, FancyArrowPatch, PathPatch, Polygon as MPoly, Rectangle  # noqa: E402
+from matplotlib.patches import FancyBboxPatch, Circle, FancyArrowPatch, PathPatch, Polygon as MPoly, Rectangle  # noqa: E402
 from matplotlib.path import Path                      # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -84,22 +84,30 @@ def inner_view(ax, lid, panel, kit):
         add_polygon(ax, p, KIT_C, KIT_E, lw=0.6, z=1)
     for p in cut(panel, [0, 0, B.PANEL_Z0 + 0.8], [0, 0, 1], XY_OPEN):
         add_polygon(ax, p, PANEL_C, PANEL_E, lw=0.9, z=2)
+    gcx, gcy, gw, gh, gr = B.panel_window()               # the window: the Tab5's black glass
+    ax.add_patch(FancyBboxPatch((gcx - gw / 2 + gr, -gcy - gh / 2 + gr), gw - 2 * gr, gh - 2 * gr,
+                                boxstyle=f"round,pad={gr}", fc="#2b2d31", ec=KIT_E, lw=0.6, zorder=3))
     w, h = B.KIT_WIN
     wx = B.KIT_CX + B.KIT_WIN_OFF
     wy = -B.KIT_WIN_OFF_Y
     ax.add_patch(Rectangle((wx - w / 2, wy - h / 2), w, h, fc="#eef0f2", ec=KIT_E, lw=0.6, zorder=3))
-    ax.text(wx, wy, "画面（5 型、タッチ）", fontsize=12, color="#777", ha="center", va="center", zorder=4)
+    ax.text(wx, wy, "画面（5 型、タッチ）\n窓は黒いガラス全体（白い縁は\nパネルの下に隠れる）", fontsize=11,
+            color="#777", ha="center", va="center", zorder=4)
+    cx, cy, cd = B.KIT_CAMERA
+    ax.add_patch(Circle((B.KIT_CX + cx, -cy), cd / 2 - 0.5, fc="#55585e", ec="none", zorder=4))
+    for mx, my in B.KIT_MICS:
+        ax.add_patch(Circle((B.KIT_CX + mx, -my), 0.8, fc="#55585e", ec="none", zorder=4))
     for x, y in B.PANEL_SCREWS:
         ax.add_patch(Circle((x, -y), 1.6, fc="white", ec=INK, lw=0.8, zorder=5))
     for x, y in B.PANEL_PILLARS:                              # behind the panel: where it rests
         ax.add_patch(Circle((x, -y), B.PANEL_BOSS_R, fc="none", ec="#8a8478", lw=0.9, ls=(0, (2, 2)), zorder=5))
-    px, py = B.PANEL_PILLARS[0]
-    note(ax, (px - 1.0, -py - 2.8), "点線：ねじのない柱（パネルの裏を受ける）", (20.0, -61.0), fs=9.5)
+    px, py = B.PANEL_PILLARS[1]
+    note(ax, (px - 1.0, -py - 2.8 * (1 if py < 0 else -1)), "点線：ねじのない柱（パネルの裏を受ける）", (20.0, -61.0), fs=9.5)
     note(ax, (B.PANEL_SCREWS[1][0] - 1.5, -B.PANEL_SCREWS[1][1] + 1.0), f"M2×8 皿タッピングねじ（{len(B.PANEL_SCREWS)} 本）", (60.0, 57.0))
     cx, cy, _ = B.KIT_CAMERA
-    note(ax, (B.KIT_CX + cx, -cy + 3.0), "カメラの穴", (70.0, 20.0), fs=9.5)
+    note(ax, (B.KIT_CX + cx, -cy + 3.0), "カメラ（窓の中）", (70.0, 20.0), fs=9.5)
     mx, my = B.KIT_MICS[0]
-    note(ax, (B.KIT_CX + mx, -my + 1.0), "マイクの穴（2 か所）", (-8.0, 57.0), fs=9.5)
+    note(ax, (B.KIT_CX + mx, -my + 1.0), "マイク（窓の中、2 か所）", (-8.0, 57.0), fs=9.5)
     note(ax, (B.KIT_CX - B.KIT_L / 2 - 2.5, -sum(B.KIT_PWR_CAP_Y) / 2), "電源ボタン（ポートベイの中、\nTab5 の左の縁を横から押す）", (-50.0, -61.0), fs=9.5)
     if B.PORT_BAY:      # the ports on the Tab5's left edge, seen through the port bay, and the plugs coming in
         label = {"usb_a": "USB-A", "usb_c": "USB-C", "jack": "イヤホン", "grove": "Grove"}

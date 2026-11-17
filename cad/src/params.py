@@ -81,9 +81,16 @@ PD_MOUNT = os.environ.get("PD_MOUNT", "kit")
 # lies screen down, its left edge (USB-C, USB-A, power button) at -x and its top edge at -y (the lid's front).
 KIT_L, KIT_W, KIT_T = 128.0, 80.0, 12.0   # [M:size drawing, Tab5.stl]
 KIT_R = 4.0                   # [M:size drawing] plan corner radius
-KIT_WIN = (110.7, 62.3)       # active area of the 5" 16:9 panel (the drawing's visible area scales to 110.4 x 61.6)
-KIT_WIN_OFF = -2.8            # [M:size drawing] window centre from the body centre, + = away from the USB end (x 6.0..116.4 of 128)
-KIT_WIN_OFF_Y = -0.6          # [M:size drawing] the same across (lid y): the window sits 0.6 above the middle (9.8..71.4 of 80)
+KIT_WIN = (110.7, 62.3)       # active area of the 5" 16:9 panel
+# Where the active area is: the size drawing's inner rectangle (not dimensioned there) scales to x 6.0..116.4 of 128,
+# 2.8 mm toward the USB end. The real Tab5 does not agree: printed, the lit area stood about 3 mm right of a window
+# placed by it. M5Stack's product photo (front, square on) puts it 8.7 mm from the USB end and 9.5 from the other, and
+# 8.9 from the top and the bottom. MEASURE on a real Tab5.
+KIT_WIN_OFF = -0.4            # [M:product photo] active area centre from the body centre, + = away from the USB end
+KIT_WIN_OFF_Y = 0.0           # [M:product photo] the same across (lid y)
+# The front is black glass to within about 1.2 mm of the outline (the housing's white rim: 0.9..1.3 in the product
+# photo; the size drawing's heavy outline); the camera and the two microphones are in the glass.
+KIT_GLASS_RIM = 1.2           # [M:product photo] the white rim round the glass, per side
 KIT_KEY_CAPS = ()             # no keys on the long edge
 KIT_CAP_OUT = 1.2
 KIT_CAP_Z = (2.1, 4.95)
@@ -113,7 +120,8 @@ KIT_MASS_G = 120.9            # [M: docs.m5stack.com Tab5] without battery
 KIT_CAMERA = (59.55, 0.0, 6.0)   # [M:size drawing] camera (d 5) 4.45 mm from the right edge, half way up: x from the centre, y, hole
 KIT_MICS = ((-40.8, -36.7), (-6.5, -36.7))   # [M:size drawing] the two microphone holes in the top bezel: x from the centre, lid y
 KIT_MIC_D = 2.0
-KIT_CX = -KIT_WIN_OFF         # [D] body centre x in the lid: puts the window centre at x = 0
+KIT_CX = 2.8                  # [D] body centre x in the lid (was: the drawing's window centre at x = 0; kept so the lid
+                              # stays as printed)
 KIT_FIT = 0.2                 # around the Tab5 (panel rim), per side
 KIT_GAP = 0.2                 # behind the Tab5
 # Manufacturing (kit design): PLA on a Bambu Lab A1 mini (0.4 nozzle, 0.2 layers): 2 mm shells (1.2 mm ones printed
@@ -188,9 +196,11 @@ USB_CEIL = SHELL_CEIL         # no relief over the USB-C plug path (the plug run
 #   ceil_clr: least gap between a plug and the ceiling; where a plug needs more, the ceiling over its lane (end wall to
 #             the Tab5) is thinned from inside to `skin` (the USB-A and headset plugs stand 0.4-0.6 mm above the
 #             Tab5's back)
-# The bay's opening in the panel is a plain rectangle in line with the screen's window: the same top and bottom edges,
-# as far from the window as the rim round the Tab5 allows, and as far again from the panel's left edge (port_bay_rect).
-PORT_BAY = dict(slot="usb_c", clr=0.5, merge=2.0, ceil_clr=0.2, skin=LID_SKIN, r=0.5)
+# The bay's opening in the panel is a plain rectangle in line with the screen's lit area (its top and bottom + 0.3), as
+# far from the window as the rim round the Tab5 allows, and as far again from the panel's left edge (port_bay_rect).
+#   lid_y: the span (y) kept clear in the lid over the bay, as the lid was printed (2026-11-15; the opening then had the
+#          old window's top and bottom); fixed so a change of the panel's opening leaves the lid alone
+PORT_BAY = dict(slot="usb_c", clr=0.5, merge=2.0, ceil_clr=0.2, skin=LID_SKIN, r=0.5, lid_y=(-32.05, 30.85))
 # The bay's cover: a plate flush with the panel face. The opening's wall goes straight through the front `face` mm, then
 # narrows at 45 degrees by `ledge` mm a side over the panel's back `ledge_t` mm (face + ledge_t = PANEL_T; ledge =
 # ledge_t, so the seat prints without support with the panel face down: a flat ledge sticking out into the opening
@@ -206,7 +216,9 @@ PORT_COVER = dict(face=1.0, ledge_t=0.6, ledge=0.6, clr=0.2, chamfer=0.6, frame_
                   hold=dict(gap=0.1, tip=0.2, tongue_margin=6.0, finger=16.0, slit=0.8, hook=5.0))
 PANEL_T = 1.6                 # bezel panel (countersunk M2x8 heads: 1.2 deep)
 PANEL_CLR = 0.2               # panel to the lid's walls and hinge pads
-PANEL_WIN_CLR = 0.3           # window = the kit's window + 0.3 per side (the kit can shift by KIT_FIT), square edges
+PANEL_WIN = dict(overlap=1.8)  # the window shows the Tab5's whole black glass and hides its white rim: the Tab5's
+                              # outline less `overlap` a side (the rim + 0.4 for KIT_FIT and the photo's spread; about
+                              # 0.6 of the glass's black edge goes under the panel), corners concentric with the Tab5's
 PANEL_RIM = dict(h=2.0, w=1.2)   # locating rim on the panel's back around the kit (below the caps at 2.1 mm)
 PANEL_SLOT = dict(out=11.0, end=3.0, r=0.75)  # finger slot through the panel beside the power button (pushed sideways)
 # guard rings on the panel's back around the finger slots, up to the kit's back: whatever falls in a slot stays in that
