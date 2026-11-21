@@ -6,6 +6,10 @@ M5Stack Tab5（5 型タッチ液晶、ESP32-P4）と CACOE のキーボードを
 
 ![開いたところ（完成予想）](docs/images/render_open.png)
 
+<p align="center"><img src="docs/images/photoreal_open.jpg" width="49%" alt="黒のマット PLA で刷った場合のレンダリング（開いたところ）"> <img src="docs/images/photoreal_closed.jpg" width="49%" alt="黒のマット PLA で刷った場合のレンダリング（閉じたところ）"></p>
+
+黒のマット PLA で刷った場合の見え方を、Blender（Cycles）で描いたものです。写真ではありません（`docs/render/photoreal.py`、`make photoreal`。キーボードは CACOE の代わりの簡易モデル、画面の表示はイメージ）。
+
 ## いまの状態
 
 - **設計と印刷データまで**です。まだ 1 つも刷っていません。Tab5 の実物にも当てていません

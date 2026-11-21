@@ -12,7 +12,7 @@ PYTHON      ?= python3
 ORIGINAL    ?= $(HOME)/phone-enclosure
 export PHONE_ENCLOSURE_STL ?= $(ORIGINAL)/STL
 
-.PHONY: all setup original cad 3mf verify report sim manifest render
+.PHONY: all setup original cad 3mf verify report sim manifest render photoreal
 
 all: 3mf
 
@@ -36,6 +36,11 @@ report: 3mf
 
 sim: cad
 	cd cad && $(PYTHON) tools/snap_sim.py
+
+# photoreal renders in matte black PLA (Blender Cycles as a Python module: pip install bpy==5.3.0; about 10 min each)
+photoreal:
+	$(PYTHON) docs/render/photoreal.py --view open
+	$(PYTHON) docs/render/photoreal.py --view closed
 
 manifest: 3mf
 	cd cad && $(PYTHON) tools/manifest.py --write
